@@ -18,17 +18,34 @@ interface ChatOptions {
   extra?: Record<string, unknown>;
 }
 
+/** AIGW 端点 + 鉴权头，按模式选择：
+ *  - direct：直连 AIGW，自带 `Authorization: Bearer <AppKey>`（集团内网机器）
+ *  - relay ：发到本机 relay 端口，带 `X-Relay-Token`，由 Mac Mini relay 注入 AppKey（阿里云外网机器） */
+function aigwTarget(): { url: string; headers: Record<string, string> } {
+  if (config.aigwMode === 'direct') {
+    return {
+      url: `${config.aigwBaseUrl}/chat/completions`,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.aigwAppKey}` },
+    };
+  }
+  return {
+    url: `${config.relayUrl}/v1/chat/completions`,
+    headers: { 'Content-Type': 'application/json', 'X-Relay-Token': config.relayToken },
+  };
+}
+
 async function relayPost(body: unknown, timeoutMs: number): Promise<any> {
   const attempts = 4; // tolerate relay/tunnel blips (sleep, reconnect, network jitter)
+  const { url, headers } = aigwTarget();
   let lastErr: unknown;
   for (let i = 0; i < attempts; i++) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     let res: Response;
     try {
-      res = await fetch(`${config.relayUrl}/v1/chat/completions`, {
+      res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Relay-Token': config.relayToken },
+        headers,
         body: JSON.stringify(body),
         signal: ctrl.signal,
       });
@@ -40,7 +57,7 @@ async function relayPost(body: unknown, timeoutMs: number): Promise<any> {
         await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
         continue;
       }
-      throw new Error(`AIGW relay 连接失败（已重试 ${attempts} 次，relay 可能不可用）：${String(e)}`);
+      throw new Error(`AIGW 连接失败（${config.aigwMode} 模式，已重试 ${attempts} 次，${config.aigwMode === 'direct' ? 'AIGW 直连不可用' : 'relay 可能不可用'}）：${String(e)}`);
     }
     clearTimeout(timer);
     const text = await res.text();
@@ -173,7 +190,9 @@ export async function generateImage(
   throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }
 
+/** AIGW 可达性：relay 模式探 relay 的 /healthz；direct 模式只要配了 AppKey 即视为就绪。 */
 export async function relayHealth(): Promise<boolean> {
+  if (config.aigwMode === 'direct') return !!config.aigwAppKey;
   try {
     const res = await fetch(`${config.relayUrl}/healthz`, { signal: AbortSignal.timeout(5000) });
     return res.ok;

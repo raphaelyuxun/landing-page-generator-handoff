@@ -12,8 +12,14 @@ export const config = {
   // 真实值由各机器的 .env 提供（.env 已 gitignore）。源码只保留安全占位默认值。
   appPassword: process.env.APP_PASSWORD || 'change-me',
   sessionSecret: process.env.SESSION_SECRET || 'dev-only-change-me',
+  // AIGW 接入模式：'relay' = 经 Mac Mini relay（阿里云外网机器用）；'direct' = 直连 AIGW（集团内网机器用）
+  aigwMode: (process.env.AIGW_MODE || 'relay').trim() as 'relay' | 'direct',
+  // relay 模式：应用 → 本机 relay 端口（反向隧道到 Mac Mini），relay 注入 AppKey
   relayUrl: (process.env.AIGW_RELAY_URL || 'http://127.0.0.1:4500').replace(/\/$/, ''),
   relayToken: process.env.AIGW_RELAY_TOKEN || '',
+  // direct 模式：应用直连 AIGW，自己持有 AppKey（AppID.AppKey 形式的 Bearer 值）
+  aigwBaseUrl: (process.env.AIGW_BASE_URL || 'https://aigw.nie.netease.com/v1').replace(/\/$/, ''),
+  aigwAppKey: process.env.AIGW_APP_KEY || '',
   textModel: process.env.TEXT_MODEL || 'claude-opus-4-6',
   imageModel: process.env.IMAGE_MODEL || 'gemini-3-pro-image',
   dataDir: path.resolve(ROOT, process.env.DATA_DIR || './data'),
