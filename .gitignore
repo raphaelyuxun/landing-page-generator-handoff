@@ -1,0 +1,19 @@
+node_modules/
+dist/
+web/dist/
+web/node_modules/
+
+# 任务数据与资源（含客户数据，不入库）
+data/
+data-test/
+
+*.log
+.DS_Store
+
+# 环境与密钥（真实值绝不提交；.env.example 是占位模板，保留）
+.env
+.env.*
+!.env.example
+
+# relay 配置含 AIGW AppKey
+relay/relay.config.json

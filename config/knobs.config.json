@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "knobs": {
+    "categoryLabel": {
+      "label": "品类标签",
+      "group": "shared",
+      "freeText": true,
+      "options": []
+    },
+    "targetMarket": {
+      "label": "目标市场",
+      "group": "shared",
+      "options": [
+        { "value": "na", "label": "北美", "copyDirective": "Target North American buyers; use US units where natural, confident professional tone, emphasize compliance (FDA/UL) and reliable logistics." },
+        { "value": "weu", "label": "西欧", "copyDirective": "Target Western European buyers; emphasize CE/REACH compliance, sustainability and precise, understated professionalism." },
+        { "value": "mideast", "label": "中东", "copyDirective": "Target Middle East buyers; emphasize Halal where relevant, large-volume supply, relationship and reliability." },
+        { "value": "sea", "label": "东南亚", "copyDirective": "Target Southeast Asian buyers; emphasize competitive pricing, flexible MOQ and fast regional shipping." },
+        { "value": "latam", "label": "拉美", "copyDirective": "Target Latin American buyers; emphasize value, supply stability and Spanish/Portuguese-market familiarity." },
+        { "value": "global", "label": "通用", "copyDirective": "Target a global B2B audience; keep claims market-neutral and broadly credible." }
+      ]
+    },
+    "positioning": {
+      "label": "定位",
+      "group": "shared",
+      "options": [
+        { "value": "technical", "label": "技术专业", "copyDirective": "Positioning: technical/professional. Precise, specification-aware language; restrained adjectives." },
+        { "value": "premium", "label": "高端品质", "copyDirective": "Positioning: premium quality. Polished, confident, quality-led language; refined tone." },
+        { "value": "value", "label": "性价比走量", "copyDirective": "Positioning: value/volume. Emphasize cost-efficiency, capacity and supply reliability." }
+      ]
+    },
+    "buyerType": {
+      "label": "买家类型",
+      "group": "shared",
+      "options": [
+        { "value": "importer", "label": "进口商/分销商", "copyDirective": "Buyer: importer/distributor — cares about supply stability, lead time, documentation and margins." },
+        { "value": "brand", "label": "品牌方/制造商", "copyDirective": "Buyer: brand/manufacturer — cares about quality consistency, OEM/customization and compliance." },
+        { "value": "factory", "label": "终端工厂", "copyDirective": "Buyer: end-factory — cares about technical fit, throughput and after-sales support." },
+        { "value": "trader", "label": "贸易商", "copyDirective": "Buyer: trader — cares about price, MOQ flexibility and quick turnaround." }
+      ]
+    },
+    "trustDriver": {
+      "label": "信任杠杆",
+      "group": "shared",
+      "options": [
+        { "value": "factory", "label": "工厂实力", "copyDirective": "Lead trust with factory strength: capacity, production lines, years in business." },
+        { "value": "compliance", "label": "认证合规", "copyDirective": "Lead trust with compliance: certifications, documentation, audit-readiness." },
+        { "value": "customization", "label": "定制能力", "copyDirective": "Lead trust with customization: OEM/ODM, flexible specs and packaging." },
+        { "value": "price", "label": "价格供应链", "copyDirective": "Lead trust with price & supply chain: competitive pricing and stable supply." }
+      ]
+    },
+    "priceStance": {
+      "label": "价格策略",
+      "group": "shared",
+      "options": [
+        { "value": "show-price", "label": "显式报价", "copyDirective": "Price stance: may reference pricing/tiers; CTA invites a quote with pricing." },
+        { "value": "inquiry", "label": "询盘藏价", "copyDirective": "Price stance: do not state prices; CTA drives inquiry/quote requests." },
+        { "value": "sample-first", "label": "样品优先", "copyDirective": "Price stance: lead with free/low-cost samples; CTA offers a sample request." }
+      ]
+    },
+    "brandColor": {
+      "label": "品牌色",
+      "group": "shared",
+      "freeText": true,
+      "options": []
+    },
+    "directionNote": {
+      "label": "额外方向",
+      "group": "shared",
+      "freeText": true,
+      "options": []
+    },
+
+    "productPhotoStyle": {
+      "label": "产品图风格",
+      "group": "image",
+      "options": [
+        { "value": "studio-solid", "label": "纯色棚拍", "l2Block": "clean solid-color seamless studio backdrop, professional product photography, neutral surface" },
+        { "value": "gradient", "label": "渐变背景", "l2Block": "smooth gradient studio background, soft falloff, modern catalog look" },
+        { "value": "minimal-scene", "label": "极简场景", "l2Block": "minimal styled scene with a single clean surface and subtle context, uncluttered" },
+        { "value": "industrial", "label": "工业现场", "l2Block": "industrial setting, clean factory floor or workshop context, professional and rugged" }
+      ]
+    },
+    "lighting": {
+      "label": "灯光",
+      "group": "image",
+      "options": [
+        { "value": "soft-studio", "label": "柔光棚拍", "l2Block": "soft diffused studio lighting, gentle gradient shadows, high-key, no harsh reflections" },
+        { "value": "hard-texture", "label": "硬光质感", "l2Block": "directional hard light emphasizing surface texture and material detail, defined shadows" },
+        { "value": "natural", "label": "自然光", "l2Block": "natural daylight, soft realistic shadows, true-to-life color rendering" }
+      ]
+    },
+    "composition": {
+      "label": "构图",
+      "group": "image",
+      "options": [
+        { "value": "front", "label": "正面平视", "l2Block": "straight-on frontal eye-level composition, centered subject, balanced framing" },
+        { "value": "angle45", "label": "45°俯视", "l2Block": "45-degree elevated three-quarter angle showing form and depth" },
+        { "value": "center-closeup", "label": "居中特写", "l2Block": "centered close-up composition emphasizing detail and texture" }
+      ]
+    },
+    "bannerScene": {
+      "label": "Banner 场景",
+      "group": "image",
+      "options": [
+        { "value": "lab", "label": "实验室", "l2Block": "modern laboratory / quality-control environment, clean and clinical, technicians working, no readable text" },
+        { "value": "production-line", "label": "车间产线", "l2Block": "modern production line / factory floor, machinery and process, professional industrial scene, no readable text" },
+        { "value": "warehouse", "label": "仓储物流", "l2Block": "organized warehouse with stacked goods and logistics activity, scale and supply capability, no readable text" },
+        { "value": "application", "label": "应用场景", "l2Block": "real-world application scene showing the product category in use, contextual and aspirational, no readable text" },
+        { "value": "abstract-brand", "label": "抽象品牌", "l2Block": "abstract premium brand backdrop, clean geometric or gradient composition, no readable text" }
+      ]
+    },
+    "i2iStrength": {
+      "label": "i2i 保真强度",
+      "group": "image",
+      "options": [
+        { "value": "high-fidelity", "label": "强保真", "l2Block": "Preserve the real product from the customer photo with maximum fidelity; only change lighting, background and crop. Do not alter the product's shape, label or proportions." },
+        { "value": "medium", "label": "中", "l2Block": "Keep the product recognizable and true to the customer photo while restyling the presentation, background and layout." },
+        { "value": "low", "label": "弱（接近重绘）", "l2Block": "Use the customer photo only as a loose guide for the overall form; re-render the presentation cleanly." }
+      ]
+    },
+    "colorMood": {
+      "label": "色调",
+      "group": "image",
+      "options": [
+        { "value": "cool-pro", "label": "冷静专业", "l2Block": "cool professional palette, blues and neutral grays, controlled and trustworthy" },
+        { "value": "warm-vivid", "label": "活力暖色", "l2Block": "warm vivid palette, inviting and energetic tones" },
+        { "value": "dark-premium", "label": "高端暗调", "l2Block": "dark premium palette, deep tones with selective highlights, luxury feel" },
+        { "value": "clean-bright", "label": "洁净高明度", "l2Block": "clean bright high-key palette, white and light neutrals, hygienic and clear" }
+      ]
+    },
+    "backgroundComplexity": {
+      "label": "背景复杂度",
+      "group": "image",
+      "options": [
+        { "value": "minimal", "label": "极简纯净", "l2Block": "minimal pure background, no distractions" },
+        { "value": "light-texture", "label": "轻纹理", "l2Block": "subtle background texture, gentle depth without distraction" },
+        { "value": "scene", "label": "场景化", "l2Block": "contextual scene background relevant to the product category" }
+      ]
+    },
+    "propStyle": {
+      "label": "陪衬物",
+      "group": "image",
+      "options": [
+        { "value": "none", "label": "无陪衬", "l2Block": "no additional props, product only" },
+        { "value": "industry-props", "label": "行业道具", "l2Block": "relevant industry props that reinforce the category context" },
+        { "value": "packaging", "label": "包装展示", "l2Block": "show the product alongside its packaging" }
+      ]
+    },
+
+    "copyEmphasis": {
+      "label": "卖点侧重",
+      "group": "copy",
+      "multi": true,
+      "options": [
+        { "value": "quality", "label": "品质认证", "copyDirective": "Emphasize quality & certifications." },
+        { "value": "price-moq", "label": "价格MOQ", "copyDirective": "Emphasize competitive price and flexible MOQ." },
+        { "value": "oem", "label": "定制OEM", "copyDirective": "Emphasize OEM/ODM customization capability." },
+        { "value": "logistics", "label": "交期物流", "copyDirective": "Emphasize lead time and logistics reliability." },
+        { "value": "capacity", "label": "产能规模", "copyDirective": "Emphasize production capacity and scale." }
+      ]
+    },
+    "toneStrength": {
+      "label": "语气强度",
+      "group": "copy",
+      "options": [
+        { "value": "restrained", "label": "克制专业", "copyDirective": "Tone: restrained and professional. Minimal adjectives, no exclamation marks, no promotional language." },
+        { "value": "neutral", "label": "中性", "copyDirective": "Tone: neutral and clear. Balanced, informative." },
+        { "value": "promotional", "label": "热情促销", "copyDirective": "Tone: warm and promotional. Confident, persuasive, energetic (still credible)." }
+      ]
+    },
+    "template": {
+      "label": "模版",
+      "group": "copy",
+      "options": [
+        { "value": "m1", "label": "模版1 (stats/certs/testimonials)" },
+        { "value": "m2", "label": "模版2 (trust/faq)" }
+      ]
+    },
+    "richnessLevel": {
+      "label": "丰满度",
+      "group": "copy",
+      "options": [
+        { "value": "lean", "label": "精简", "copyDirective": "Richness: lean — only required fields plus at most one optional module." },
+        { "value": "standard", "label": "标准", "copyDirective": "Richness: standard — a balanced set of modules with moderate item counts." },
+        { "value": "rich", "label": "丰满", "copyDirective": "Richness: rich — populate all modules available for the template, with full item counts." }
+      ]
+    },
+    "ctaUrgency": {
+      "label": "CTA 紧迫度",
+      "group": "copy",
+      "options": [
+        { "value": "calm", "label": "平和", "copyDirective": "CTA urgency: calm and inviting." },
+        { "value": "medium", "label": "中等", "copyDirective": "CTA urgency: moderate, encourage timely inquiry." },
+        { "value": "strong", "label": "强催促", "copyDirective": "CTA urgency: strong, create a sense of timeliness (without false scarcity)." }
+      ]
+    },
+    "socialProofStyle": {
+      "label": "社会证明",
+      "group": "copy",
+      "options": [
+        { "value": "data", "label": "数据型", "copyDirective": "Social proof: data-led (stats/numbers)." },
+        { "value": "word-of-mouth", "label": "口碑型", "copyDirective": "Social proof: testimonials/word-of-mouth." },
+        { "value": "credential", "label": "资质型", "copyDirective": "Social proof: credentials/certifications." }
+      ]
+    }
+  }
+}

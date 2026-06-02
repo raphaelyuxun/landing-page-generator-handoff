@@ -1,0 +1,334 @@
+{
+  "version": 1,
+  "anchors": [
+    {
+      "id": "chemical-raw-material",
+      "displayName": "化工原料 / 原料药 / 营养添加剂",
+      "profile": {
+        "categoryLabel": "Bulk Chemical / Raw Material / Nutraceutical Ingredient",
+        "matchedAnchors": ["chemical-raw-material"],
+        "buyerPersona": {
+          "types": ["importer", "brand", "factory"],
+          "primaryConcerns": [
+            "purity & consistency batch to batch",
+            "COA / documentation availability",
+            "regulatory compliance (grade-specific)",
+            "supply stability & lead time",
+            "packaging & shelf life"
+          ]
+        },
+        "trustDriversRanked": ["compliance", "factory", "customization", "price"],
+        "plausibleStats": {
+          "yearsExperience": [8, 25],
+          "annualCapacity": { "range": [100, 1000], "unit": "MT" },
+          "countriesExported": [20, 80],
+          "extra": [{ "label": "Purity Guaranteed", "range": [95, 99], "unit": "%+" }]
+        },
+        "typicalCertifications": [
+          "ISO 9001", "ISO 22000", "FSSC 22000", "HACCP", "GMP",
+          "Kosher", "Halal", "NSF", "USDA Organic", "REACH"
+        ],
+        "visualConventions": {
+          "recommendedProductPhotoStyle": "studio-solid",
+          "recommendedBannerScene": "production-line",
+          "recommendedColorMood": "clean-bright",
+          "subjectPresentation": "industrial fiber drum or foil bag of fine powder, clean clinical packaging with neutral label, sample of powder displayed beside container, optional application items (capsules, food) as props",
+          "productsLikelyHomogeneous": true
+        },
+        "faqDirections": ["lead time", "MOQ", "sample & COA policy", "documentation (COA/MSDS/DMF)", "packaging options", "payment terms"],
+        "sellingPointPriority": ["purity/grade", "certifications", "documentation", "capacity/supply", "customization/packaging"]
+      },
+      "recommendedCombos": [
+        {
+          "archetype": "compliance-anchored",
+          "displayName": "合规背书型",
+          "fitFor": "卖给受监管行业（药用/食品级）的买家",
+          "rationale": "监管行业买家最看证书与纯度，视觉要实验室级洁净，文案克制显专业。",
+          "knobPreset": {
+            "positioning": "technical", "trustDriver": "compliance",
+            "socialProofStyle": "credential", "productPhotoStyle": "studio-solid",
+            "lighting": "soft-studio", "colorMood": "clean-bright",
+            "copyEmphasis": ["quality", "oem"], "toneStrength": "restrained",
+            "richnessLevel": "rich", "priceStance": "sample-first"
+          }
+        },
+        {
+          "archetype": "capacity-strength",
+          "displayName": "产能实力型",
+          "fitFor": "大宗采购、看重供应稳定的进口商",
+          "rationale": "大宗买家信你产得出、供得稳，突出产能数字 + 产线实景。",
+          "knobPreset": {
+            "positioning": "value", "trustDriver": "factory",
+            "socialProofStyle": "data", "bannerScene": "production-line",
+            "productPhotoStyle": "industrial", "colorMood": "cool-pro",
+            "copyEmphasis": ["capacity", "logistics"], "ctaUrgency": "medium",
+            "richnessLevel": "standard", "priceStance": "inquiry"
+          }
+        },
+        {
+          "archetype": "fast-conversion",
+          "displayName": "快速转化型",
+          "fitFor": "中小买家、样品试单驱动",
+          "rationale": "小买家决策快，用口碑 + 免费样品 + 紧迫感推询盘。",
+          "knobPreset": {
+            "positioning": "premium", "priceStance": "sample-first",
+            "socialProofStyle": "word-of-mouth", "productPhotoStyle": "gradient",
+            "colorMood": "warm-vivid", "copyEmphasis": ["oem", "price-moq"],
+            "ctaUrgency": "strong", "richnessLevel": "standard"
+          }
+        }
+      ]
+    },
+    {
+      "id": "industrial-machinery",
+      "displayName": "工业机械 / 设备",
+      "hints": "买家关心产能/功率/良率/售后与备件；视觉=工业现场+45°展示机器全貌；型号是硬声明；同质性低(不同机型)；stats:厂龄10-30y/产线数/出口国;认证CE/ISO/UL",
+      "profile": {
+        "categoryLabel": "Industrial Machinery / Equipment",
+        "matchedAnchors": ["industrial-machinery"],
+        "buyerPersona": {
+          "types": ["factory", "importer", "trader"],
+          "primaryConcerns": [
+            "throughput / capacity & power rating",
+            "build quality, yield rate & uptime",
+            "after-sales service & spare parts availability",
+            "installation & commissioning support",
+            "warranty & certification (CE/UL)"
+          ]
+        },
+        "trustDriversRanked": ["factory", "customization", "compliance", "price"],
+        "plausibleStats": {
+          "yearsExperience": [10, 30],
+          "annualCapacity": { "range": [50, 600], "unit": "units" },
+          "countriesExported": [15, 60],
+          "extra": [{ "label": "Production Lines", "range": [3, 12], "unit": "lines" }]
+        },
+        "typicalCertifications": ["CE", "ISO 9001", "UL", "ISO 14001", "SGS"],
+        "visualConventions": {
+          "recommendedProductPhotoStyle": "industrial",
+          "recommendedBannerScene": "production-line",
+          "recommendedColorMood": "cool-pro",
+          "subjectPresentation": "full machine shown at a 45-degree angle on a clean factory floor, stainless steel and painted metal surfaces, control panel visible, industrial lighting",
+          "productsLikelyHomogeneous": false
+        },
+        "faqDirections": ["lead time", "installation & training", "warranty & spare parts", "customization (voltage/capacity)", "payment terms", "after-sales support"],
+        "sellingPointPriority": ["capacity/power", "build quality/durability", "after-sales/spare parts", "customization", "certifications"]
+      }
+    },
+    {
+      "id": "food-ingredient",
+      "displayName": "食品配料 / 添加剂",
+      "hints": "近似化工但更强调食品安全与口感应用；视觉=洁净棚拍+食品应用道具；同质性高;认证FSSC/HACCP/Halal/Kosher/Organic",
+      "profile": {
+        "categoryLabel": "Food Ingredient / Additive",
+        "matchedAnchors": ["food-ingredient", "chemical-raw-material"],
+        "buyerPersona": {
+          "types": ["brand", "factory", "importer"],
+          "primaryConcerns": [
+            "food safety & traceability",
+            "taste / functional performance in application",
+            "certifications (Halal/Kosher/Organic)",
+            "shelf life & packaging",
+            "consistent supply & price stability"
+          ]
+        },
+        "trustDriversRanked": ["compliance", "factory", "customization", "price"],
+        "plausibleStats": {
+          "yearsExperience": [8, 22],
+          "annualCapacity": { "range": [200, 2000], "unit": "MT" },
+          "countriesExported": [20, 70],
+          "extra": [{ "label": "Purity / Active Content", "range": [90, 99], "unit": "%+" }]
+        },
+        "typicalCertifications": ["FSSC 22000", "HACCP", "ISO 22000", "Halal", "Kosher", "USDA Organic", "BRC"],
+        "visualConventions": {
+          "recommendedProductPhotoStyle": "studio-solid",
+          "recommendedBannerScene": "production-line",
+          "recommendedColorMood": "clean-bright",
+          "subjectPresentation": "clean food-grade packaging (foil bag or jar) with neutral label, sample of ingredient displayed beside the container, finished food application (beverage, bakery, capsule) as a prop",
+          "productsLikelyHomogeneous": true
+        },
+        "faqDirections": ["lead time", "MOQ", "sample & COA policy", "certifications & documentation", "packaging & shelf life", "payment terms"],
+        "sellingPointPriority": ["food safety/certifications", "purity/active content", "application performance", "capacity/supply", "packaging"]
+      }
+    },
+    {
+      "id": "consumer-electronics",
+      "displayName": "消费电子 / 电子元件",
+      "hints": "买家关心规格参数/兼容/认证/MOQ；视觉=纯色棚拍极简高科技感；型号硬声明；认证CE/FCC/RoHS/UL",
+      "profile": {
+        "categoryLabel": "Consumer Electronics / Electronic Components",
+        "matchedAnchors": ["consumer-electronics"],
+        "buyerPersona": {
+          "types": ["importer", "brand", "trader"],
+          "primaryConcerns": [
+            "specifications & compatibility",
+            "certifications (CE/FCC/RoHS)",
+            "MOQ & price tiers",
+            "quality consistency & defect rate",
+            "OEM/ODM & customization"
+          ]
+        },
+        "trustDriversRanked": ["compliance", "customization", "factory", "price"],
+        "plausibleStats": {
+          "yearsExperience": [6, 18],
+          "annualCapacity": { "range": [100000, 2000000], "unit": "pcs" },
+          "countriesExported": [25, 90],
+          "extra": [{ "label": "Defect Rate", "range": [0, 1], "unit": "%" }]
+        },
+        "typicalCertifications": ["CE", "FCC", "RoHS", "UL", "ISO 9001", "REACH"],
+        "visualConventions": {
+          "recommendedProductPhotoStyle": "studio-solid",
+          "recommendedBannerScene": "production-line",
+          "recommendedColorMood": "cool-pro",
+          "subjectPresentation": "product on a clean solid-color seamless backdrop, minimal high-tech aesthetic, crisp edges, subtle reflection, sharp focus on ports and detailing",
+          "productsLikelyHomogeneous": false
+        },
+        "faqDirections": ["MOQ", "lead time", "OEM/ODM customization", "certifications", "warranty & defect policy", "payment terms"],
+        "sellingPointPriority": ["specifications", "certifications", "OEM/customization", "quality/defect rate", "price/MOQ"]
+      }
+    },
+    {
+      "id": "textile-apparel",
+      "displayName": "纺织 / 服装 / 面料",
+      "hints": "买家关心克重/成分/起订/打样；视觉=面料平铺或模特场景+暖色；同质性中;认证OEKO-TEX/GOTS/BSCI",
+      "profile": {
+        "categoryLabel": "Textile / Apparel / Fabric",
+        "matchedAnchors": ["textile-apparel"],
+        "buyerPersona": {
+          "types": ["brand", "importer", "trader"],
+          "primaryConcerns": [
+            "fabric weight (gsm) & composition",
+            "MOQ & sampling",
+            "color fastness & quality",
+            "lead time for bulk orders",
+            "certifications (OEKO-TEX/GOTS)"
+          ]
+        },
+        "trustDriversRanked": ["customization", "factory", "compliance", "price"],
+        "plausibleStats": {
+          "yearsExperience": [7, 20],
+          "annualCapacity": { "range": [500000, 5000000], "unit": "meters" },
+          "countriesExported": [15, 60],
+          "extra": [{ "label": "Monthly Output", "range": [50000, 500000], "unit": "pcs" }]
+        },
+        "typicalCertifications": ["OEKO-TEX Standard 100", "GOTS", "BSCI", "ISO 9001", "GRS"],
+        "visualConventions": {
+          "recommendedProductPhotoStyle": "minimal-scene",
+          "recommendedBannerScene": "application",
+          "recommendedColorMood": "warm-vivid",
+          "subjectPresentation": "fabric shown as a neat flat-lay with visible weave and texture, or draped on a clean surface; lifestyle context optional; warm, inviting tone",
+          "productsLikelyHomogeneous": false
+        },
+        "faqDirections": ["MOQ", "sampling & swatches", "lead time", "customization (color/composition)", "certifications", "payment terms"],
+        "sellingPointPriority": ["fabric quality/composition", "customization", "MOQ/sampling", "certifications", "price"]
+      }
+    },
+    {
+      "id": "agri-feed",
+      "displayName": "农资 / 饲料 / 兽用",
+      "hints": "买家关心含量/适用畜种/合规/包装；视觉=工业袋装+农牧场景；认证GMP+/ISO/FAMI-QS",
+      "profile": {
+        "categoryLabel": "Agricultural Input / Animal Feed / Veterinary",
+        "matchedAnchors": ["agri-feed", "chemical-raw-material"],
+        "buyerPersona": {
+          "types": ["importer", "factory", "trader"],
+          "primaryConcerns": [
+            "active content & efficacy",
+            "applicable species / crops",
+            "regulatory compliance & registration",
+            "packaging & bulk logistics",
+            "price & supply stability"
+          ]
+        },
+        "trustDriversRanked": ["compliance", "factory", "price", "customization"],
+        "plausibleStats": {
+          "yearsExperience": [8, 24],
+          "annualCapacity": { "range": [500, 5000], "unit": "MT" },
+          "countriesExported": [15, 55],
+          "extra": [{ "label": "Active Content", "range": [50, 99], "unit": "%" }]
+        },
+        "typicalCertifications": ["GMP+", "FAMI-QS", "ISO 9001", "ISO 22000", "HACCP"],
+        "visualConventions": {
+          "recommendedProductPhotoStyle": "industrial",
+          "recommendedBannerScene": "warehouse",
+          "recommendedColorMood": "clean-bright",
+          "subjectPresentation": "industrial woven bag or drum of feed/agri product with clear neutral labeling, sample of granules or powder beside it, farm or warehouse context as a backdrop",
+          "productsLikelyHomogeneous": true
+        },
+        "faqDirections": ["lead time", "MOQ", "registration & compliance", "packaging options", "documentation", "payment terms"],
+        "sellingPointPriority": ["active content/efficacy", "compliance/registration", "capacity/supply", "packaging", "price"]
+      }
+    },
+    {
+      "id": "medical-consumable",
+      "displayName": "医疗耗材 / 器械",
+      "hints": "买家关心合规注册/无菌/批次追溯；视觉=洁净棚拍高明度临床感；认证CE/ISO13485/FDA;高度谨慎硬声明",
+      "profile": {
+        "categoryLabel": "Medical Consumable / Device",
+        "matchedAnchors": ["medical-consumable"],
+        "buyerPersona": {
+          "types": ["importer", "brand", "factory"],
+          "primaryConcerns": [
+            "regulatory registration (CE/FDA)",
+            "sterility & quality assurance",
+            "batch traceability & documentation",
+            "compliance with medical standards",
+            "supply reliability"
+          ]
+        },
+        "trustDriversRanked": ["compliance", "factory", "customization", "price"],
+        "plausibleStats": {
+          "yearsExperience": [7, 20],
+          "annualCapacity": { "range": [1000000, 50000000], "unit": "pcs" },
+          "countriesExported": [20, 70]
+        },
+        "typicalCertifications": ["CE", "ISO 13485", "FDA Registered", "ISO 9001", "CE MDR"],
+        "visualConventions": {
+          "recommendedProductPhotoStyle": "studio-solid",
+          "recommendedBannerScene": "lab",
+          "recommendedColorMood": "clean-bright",
+          "subjectPresentation": "sterile-packaged medical consumable on a clean high-key clinical white background, blister or pouch packaging visible, crisp and hygienic presentation",
+          "productsLikelyHomogeneous": true
+        },
+        "faqDirections": ["regulatory registration", "lead time", "sterility & QA", "documentation & traceability", "MOQ", "payment terms"],
+        "sellingPointPriority": ["regulatory compliance", "sterility/quality", "traceability/documentation", "capacity/supply", "certifications"]
+      }
+    },
+    {
+      "id": "home-fmcg",
+      "displayName": "家居 / 快消 / 日用",
+      "hints": "买家关心款式/MOQ/定制/物流；视觉=生活场景+活力配色；同质性中;认证视品类(LFGB/FDA食品接触等)",
+      "profile": {
+        "categoryLabel": "Home Goods / FMCG / Daily Use",
+        "matchedAnchors": ["home-fmcg"],
+        "buyerPersona": {
+          "types": ["brand", "importer", "trader"],
+          "primaryConcerns": [
+            "design / style & variety",
+            "MOQ & customization (logo/packaging)",
+            "logistics & lead time",
+            "price competitiveness",
+            "material safety certifications"
+          ]
+        },
+        "trustDriversRanked": ["customization", "price", "factory", "compliance"],
+        "plausibleStats": {
+          "yearsExperience": [6, 18],
+          "annualCapacity": { "range": [500000, 8000000], "unit": "pcs" },
+          "countriesExported": [20, 80],
+          "extra": [{ "label": "Monthly Output", "range": [50000, 800000], "unit": "pcs" }]
+        },
+        "typicalCertifications": ["LFGB", "FDA (food-contact)", "ISO 9001", "BSCI", "REACH"],
+        "visualConventions": {
+          "recommendedProductPhotoStyle": "minimal-scene",
+          "recommendedBannerScene": "application",
+          "recommendedColorMood": "warm-vivid",
+          "subjectPresentation": "product styled in a bright lifestyle setting (kitchen, living space) or on a clean colored backdrop, vibrant and approachable, showing real-use context",
+          "productsLikelyHomogeneous": false
+        },
+        "faqDirections": ["MOQ", "customization (logo/packaging)", "lead time", "logistics & shipping", "sampling", "payment terms"],
+        "sellingPointPriority": ["design/style", "customization", "MOQ/price", "logistics", "material safety"]
+      }
+    }
+  ]
+}
