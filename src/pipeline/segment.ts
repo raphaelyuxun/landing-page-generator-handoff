@@ -11,6 +11,7 @@ import path from 'node:path';
 import { chatJSON } from '../aigw/client.js';
 import { assetsDir } from '../store/projects.js';
 import type { CategoryProfile, FormInput, FormProductInput } from '../types.js';
+import { imageMetaLine, imageMetaOf } from '../types.js';
 
 const MAX_VISION_IMAGES = 8;
 const MIN_PRODUCTS = 3;
@@ -72,25 +73,25 @@ export async function segmentProducts(form: FormInput, profile: CategoryProfile)
     }
   }
 
-  const descByRef = form.imageDescriptions || {};
-  const hasDesc = uris.some((_, v) => descByRef[allRaw[uriRefIndex[v]]]);
+  const metaByRef = imageMetaOf(form);
+  const hasMeta = uris.some((_, v) => imageMetaLine(metaByRef[allRaw[uriRefIndex[v]]]));
   const userText = [
     `CATEGORY: ${form.categoryHint || profile.categoryLabel}`,
     `DESCRIPTION: ${form.productFeaturesCn || primary?.sellingPointCn || ''}`,
     `PRIMARY PRODUCT: ${primary?.nameEn} / ${primary?.nameCn}`,
-    hasDesc
-      ? `Each photo below may carry a USER-PROVIDED DESCRIPTION. Treat these descriptions as a STRONG signal about what the product actually is and how to split products — weigh them at least as heavily as the product name (the name may be generic/misleading).`
+    hasMeta
+      ? `Each photo below may carry USER-PROVIDED metadata (name_en / name_cn / desc). These are a STRONG reference for what the product is and how to split products — you MUST take them into account, weigh them at least as heavily as the primary name. BUT user-entered names can be casual/imprecise, so use them together with the actual photo to decide a clean, credible product name (you may refine the user's name, do not blindly copy it, and do not ignore it).`
       : '',
     uris.length > 0
       ? `There are ${uris.length} photos (indexes 0..${uris.length - 1}). Identify distinct products per the rules.`
       : `No photos available. Produce at least ${MIN_PRODUCTS} credible variants of the primary product (use empty imageIndexes).`,
   ].filter(Boolean).join('\n');
 
-  // interleave each image with its (optional) user-provided description
+  // interleave each image with its (optional) user-provided metadata
   const parts: unknown[] = [{ type: 'text', text: userText }];
   uris.forEach((url, v) => {
-    const d = descByRef[allRaw[uriRefIndex[v]]];
-    parts.push({ type: 'text', text: `[Photo ${v}]${d ? ` user description: ${d}` : ''}` });
+    const line = imageMetaLine(metaByRef[allRaw[uriRefIndex[v]]]);
+    parts.push({ type: 'text', text: `[Photo ${v}]${line ? ` user-provided: ${line}` : ''}` });
     parts.push({ type: 'image_url', image_url: { url } });
   });
   const content: unknown = uris.length > 0 ? parts : userText;

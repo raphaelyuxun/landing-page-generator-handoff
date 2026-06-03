@@ -17,13 +17,22 @@ export interface FormProductInput {
   modelNo?: string;
 }
 
+/** 单张输入图的元数据，三字段均可选（来自外部接口或手动录入）。 */
+export interface ImageMeta {
+  nameCn?: string;
+  nameEn?: string;
+  description?: string;
+}
+
 export interface FormInput {
   /** business code, e.g. "folic-acid-cn"; auto-derived from the EN name if empty */
   code: string;
   /** 客户公司名 (merchant_name) — 列表显示名 = merchantName-slug；前端创建时收集，存入 echo.merchant_name */
   merchantName?: string;
-  /** 每张输入图的描述（外部接口 images[].description），键为 rawImages 的 ref（如 "raw/dl-0.jpg"）。可选、向后兼容。 */
+  /** @deprecated 旧字段：每张输入图的描述（键为 ref）。新任务用 imageMeta；读取时通过 imageMetaOf() 兼容。 */
   imageDescriptions?: Record<string, string>;
+  /** 每张输入图的元数据（外部 images[].{name_cn,name_en,description}，或手动录入），键为 rawImages 的 ref。三字段均可选。 */
+  imageMeta?: Record<string, ImageMeta>;
   /** explicit product category provided by the operator (产品类别) — strong profiler signal */
   categoryHint?: string;
   companyIntroCn: string;
@@ -37,6 +46,26 @@ export interface FormInput {
     /** WhatsApp, with + country code, no spaces/hyphens */
     wa?: string;
   };
+}
+
+/** 读取每图元数据，兼容旧 imageDescriptions：优先 imageMeta，否则把旧描述并入 {description}。 */
+export function imageMetaOf(form: Pick<FormInput, 'imageMeta' | 'imageDescriptions'>): Record<string, ImageMeta> {
+  if (form.imageMeta && Object.keys(form.imageMeta).length) return form.imageMeta;
+  const out: Record<string, ImageMeta> = {};
+  for (const [ref, desc] of Object.entries(form.imageDescriptions || {})) {
+    if (desc && desc.trim()) out[ref] = { description: desc.trim() };
+  }
+  return out;
+}
+
+/** 把一张图的元数据拼成给模型看的一行参考文本（无字段则返回空串）。 */
+export function imageMetaLine(m?: ImageMeta): string {
+  if (!m) return '';
+  const parts: string[] = [];
+  if (m.nameEn?.trim()) parts.push(`name_en="${m.nameEn.trim()}"`);
+  if (m.nameCn?.trim()) parts.push(`name_cn="${m.nameCn.trim()}"`);
+  if (m.description?.trim()) parts.push(`desc="${m.description.trim()}"`);
+  return parts.join(' ');
 }
 
 // ============================================================================

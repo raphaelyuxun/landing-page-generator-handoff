@@ -14,6 +14,7 @@ import type {
   KnobState,
   ProductData,
 } from '../types.js';
+import { imageMetaLine, imageMetaOf } from '../types.js';
 
 const COPY_SYSTEM = `You are an expert B2B export copywriter for Google-Ads landing pages targeting
 overseas buyers. Produce rich, professional, credible English copy.
@@ -61,15 +62,15 @@ ProductData shape (one per input product, SAME ORDER):
 Do NOT set id/code/updateTime/images/price/quantity/specs — the system fills those.`;
 
 function buildUserPrompt(form: FormInput, profile: CategoryProfile, knobs: KnobState, directives: string[]): string {
-  const descByRef = form.imageDescriptions || {};
+  const metaByRef = imageMetaOf(form);
   const products = form.products
     .map((p, i) => {
-      const ds = (p.rawImages || []).map((r) => descByRef[r]).filter(Boolean);
-      const imgDesc = ds.length ? ` imgDesc="${ds.join(' | ')}"` : '';
-      return `  [${i}] EN="${p.nameEn}" CN="${p.nameCn}"${p.sellingPointCn ? ` selling="${p.sellingPointCn}"` : ''}${imgDesc}${p.modelNo ? ` modelNo="${p.modelNo}"` : ' (no model number provided)'}`;
+      const refLines = (p.rawImages || []).map((r) => imageMetaLine(metaByRef[r])).filter(Boolean);
+      const imgRef = refLines.length ? ` imgRef={${refLines.join(' ; ')}}` : '';
+      return `  [${i}] EN="${p.nameEn}" CN="${p.nameCn}"${p.sellingPointCn ? ` selling="${p.sellingPointCn}"` : ''}${imgRef}${p.modelNo ? ` modelNo="${p.modelNo}"` : ' (no model number provided)'}`;
     })
     .join('\n');
-  const anyImgDesc = form.products.some((p) => (p.rawImages || []).some((r) => descByRef[r]));
+  const anyImgDesc = form.products.some((p) => (p.rawImages || []).some((r) => imageMetaLine(metaByRef[r])));
   return [
     `CATEGORY PROFILE (do not contradict):`,
     JSON.stringify(profile, null, 1),
@@ -87,7 +88,7 @@ function buildUserPrompt(form: FormInput, profile: CategoryProfile, knobs: KnobS
     `- useScenarios: ${form.useScenariosCn}`,
     ``,
     anyImgDesc
-      ? `NOTE: each product line below may include imgDesc="..." — a user-provided description of that product's photo. Treat imgDesc as a PRIMARY signal for what the product is and how to write its copy; weigh it at least as heavily as the product name (the name may be generic/misleading). Still obey the HARD RULES (no invented specs/models).`
+      ? `NOTE: a product line may include imgRef={name_en/name_cn/desc} — user-provided metadata for that product's photo. Treat imgRef as a STRONG reference for what the product is and how to write its copy: you MUST take it into account. But user-entered names/descriptions can be casual/imprecise, so refine them into clean, credible copy rather than copying verbatim — and never ignore them. Still obey the HARD RULES (no invented specs/models).`
       : '',
     `PRODUCTS (generate one ProductData each, same order; subtitle ONLY if modelNo present):`,
     products,

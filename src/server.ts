@@ -28,7 +28,8 @@ import { generateImages, regenerateBanner, regenerateProductImage } from './pipe
 import { segmentProducts } from './pipeline/segment.js';
 import { routeRevision } from './pipeline/revise.js';
 import { buildExportPayload, exportZip } from './pipeline/exporter.js';
-import type { ContentData, FormInput, GenerationProject, JobStatus, KnobState, LogEntry, ProductData, ReviewEdit } from './types.js';
+import type { ContentData, FormInput, GenerationProject, ImageMeta, JobStatus, KnobState, LogEntry, ProductData, ReviewEdit } from './types.js';
+import { imageMetaOf } from './types.js';
 
 function nowISO(): string {
   return new Date().toISOString();
@@ -265,10 +266,10 @@ app.post('/api/projects/:code/edit-input', requireAuth, uploadZip.single('zip'),
   const dir = path.join(assetsDir(p.code), 'raw');
   const stageDir = path.join(assetsDir(p.code), 'raw-staging');
 
-  // 每张图描述（key = 最终 ref，如 "raw/up-0-x.jpg" 或现有 "raw/dl-0.jpg"）
-  let descriptions: Record<string, string> = {};
-  try { if (typeof b.descriptions === 'string' && b.descriptions.trim()) descriptions = JSON.parse(b.descriptions); } catch { /* ignore */ }
-  const hasDescField = typeof b.descriptions === 'string';
+  // 每张图元数据（key = 最终 ref；值 = {nameCn?, nameEn?, description?}）
+  let metaInput: Record<string, ImageMeta> = {};
+  try { if (typeof b.meta === 'string' && b.meta.trim()) metaInput = JSON.parse(b.meta); } catch { /* ignore */ }
+  const hasMetaField = typeof b.meta === 'string';
 
   // 1) 图片来源：暂存提交（首选）→ legacy 直传 zip → 否则保留现有
   const useStaged = (b.staged === '1' || b.staged === 'true') && fs.existsSync(stageDir) && fs.readdirSync(stageDir).length > 0;
@@ -304,14 +305,21 @@ app.post('/api/projects/:code/edit-input', requireAuth, uploadZip.single('zip'),
     rawImages = fs.readdirSync(dir).filter((f) => IMG_EXT.test(f)).sort().map((f) => path.join('raw', f));
   } catch { /* no raw dir */ }
 
-  // 3) 图片描述：弹窗传了 descriptions → 以它为准（过滤到现存图）；否则保留或随替换清空
-  let imageDescriptions: Record<string, string> | undefined;
-  if (hasDescField) {
-    const built: Record<string, string> = {};
-    for (const r of rawImages) if (descriptions[r]?.trim()) built[r] = descriptions[r].trim();
-    imageDescriptions = Object.keys(built).length ? built : undefined;
+  // 3) 图片元数据：弹窗传了 meta → 以它为准（过滤到现存图）；否则兼容沿用旧值（或随替换清空）
+  const s = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
+  let imageMeta: Record<string, ImageMeta> | undefined;
+  if (hasMetaField) {
+    const built: Record<string, ImageMeta> = {};
+    for (const r of rawImages) {
+      const m = metaInput[r];
+      if (!m) continue;
+      const v: ImageMeta = { nameCn: s(m.nameCn), nameEn: s(m.nameEn), description: s(m.description) };
+      if (v.nameCn || v.nameEn || v.description) built[r] = v;
+    }
+    imageMeta = Object.keys(built).length ? built : undefined;
   } else {
-    imageDescriptions = replacedImages ? undefined : p.formInput.imageDescriptions;
+    // 未传 meta：替换了图片则清空；否则沿用已有（兼容旧 imageDescriptions）
+    imageMeta = replacedImages ? undefined : (Object.keys(imageMetaOf(p.formInput)).length ? imageMetaOf(p.formInput) : undefined);
   }
 
   // 4) 写回 echo（公司名/昵称/排除地区，保留 task_type/extra）+ formInput（折叠成单一种子产品）
@@ -331,7 +339,8 @@ app.post('/api/projects/:code/edit-input', requireAuth, uploadZip.single('zip'),
     merchantName: str(b.merchantName) || p.formInput.merchantName,
     categoryHint: str(b.categoryHint) || p.formInput.categoryHint,
     productFeaturesCn: str(b.productDesc) || p.formInput.productFeaturesCn,
-    imageDescriptions,
+    imageMeta,
+    imageDescriptions: undefined, // 统一用 imageMeta
     products: [seed],
   };
 
@@ -767,19 +776,22 @@ function extView(p: GenerationProject) {
   };
 }
 
-interface ImageItem { url: string; description?: string }
+interface ImageItem { url: string; meta?: ImageMeta }
 
-/** 归一化 images：元素可为 URL 字符串（旧）或 { url, description? }（新）。非法返回 null。 */
+/** 归一化 images：元素可为 URL 字符串（旧）或 { url, name_cn?, name_en?, description? }（新）。非法返回 null。 */
 function normalizeImageItems(arr: unknown): ImageItem[] | null {
   if (!Array.isArray(arr) || arr.length === 0) return null;
+  const s = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
   const out: ImageItem[] = [];
   for (const it of arr) {
     if (typeof it === 'string') {
       if (!it.trim()) return null;
       out.push({ url: it.trim() });
     } else if (it && typeof it === 'object' && typeof (it as any).url === 'string' && (it as any).url.trim()) {
-      const desc = (it as any).description;
-      out.push({ url: (it as any).url.trim(), description: typeof desc === 'string' && desc.trim() ? desc.trim() : undefined });
+      const o = it as any;
+      const meta: ImageMeta = { nameCn: s(o.name_cn), nameEn: s(o.name_en), description: s(o.description) };
+      const hasMeta = meta.nameCn || meta.nameEn || meta.description;
+      out.push({ url: o.url.trim(), meta: hasMeta ? meta : undefined });
     } else {
       return null;
     }
@@ -790,12 +802,12 @@ function normalizeImageItems(arr: unknown): ImageItem[] | null {
 /** Download a list of image items into the project's raw/ dir; 3 retries each.
  *  Returns successfully-downloaded items as {ref, description?} (description stays
  *  bound to its image even when some downloads fail). */
-async function downloadImageItems(code: string, items: ImageItem[], log: (l: LogEntry['level'], m: string) => void): Promise<{ ref: string; description?: string }[]> {
+async function downloadImageItems(code: string, items: ImageItem[], log: (l: LogEntry['level'], m: string) => void): Promise<{ ref: string; meta?: ImageMeta }[]> {
   const dir = path.join(assetsDir(code), 'raw');
   fs.mkdirSync(dir, { recursive: true });
-  const out: { ref: string; description?: string }[] = [];
+  const out: { ref: string; meta?: ImageMeta }[] = [];
   for (let i = 0; i < items.length; i++) {
-    const { url, description } = items[i];
+    const { url, meta } = items[i];
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const r = await fetch(url, { signal: AbortSignal.timeout(30000) });
@@ -804,7 +816,7 @@ async function downloadImageItems(code: string, items: ImageItem[], log: (l: Log
         const ext = ct.includes('png') ? 'png' : ct.includes('webp') ? 'webp' : 'jpg';
         const name = `dl-${i}.${ext}`;
         fs.writeFileSync(path.join(dir, name), Buffer.from(await r.arrayBuffer()));
-        out.push({ ref: path.join('raw', name), description: description?.trim() || undefined });
+        out.push({ ref: path.join('raw', name), meta });
         break;
       } catch (e) {
         if (attempt === 2) log('error', `图片下载失败(${i + 1}/${items.length})：${url} ${String(e)}`);
@@ -823,10 +835,11 @@ function startExtGeneration(code: string, items: ImageItem[]): GenerationProject
     if (!results.length) throw new Error('产品图全部下载失败');
     const refs = results.map((r) => r.ref);
     p.formInput.products.forEach((pd) => { pd.rawImages = refs; });
-    const descs: Record<string, string> = {};
-    for (const r of results) if (r.description) descs[r.ref] = r.description;
-    p.formInput.imageDescriptions = Object.keys(descs).length ? descs : undefined;
-    log('info', `下载 ${refs.length} 张产品图${Object.keys(descs).length ? `（含 ${Object.keys(descs).length} 条图片描述）` : ''}`);
+    const meta: Record<string, ImageMeta> = {};
+    for (const r of results) if (r.meta) meta[r.ref] = r.meta;
+    p.formInput.imageMeta = Object.keys(meta).length ? meta : undefined;
+    p.formInput.imageDescriptions = undefined; // 统一用 imageMeta
+    log('info', `下载 ${refs.length} 张产品图${Object.keys(meta).length ? `（含 ${Object.keys(meta).length} 张带名称/描述）` : ''}`);
     await autorunWork(p, update, log);
   });
 }

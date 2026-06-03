@@ -20,6 +20,7 @@ import type {
   GeneratedAsset,
   KnobState,
 } from '../types.js';
+import { imageMetaLine, imageMetaOf } from '../types.js';
 
 const STYLE_BLOCK = 'professional product photography, high resolution, sharp focus, commercial catalog quality';
 const NEGATIVE_BLOCK = 'no text, no watermark, no logo, no distorted shapes, no extra objects, no gibberish lettering';
@@ -43,13 +44,21 @@ export function groupProducts(_profile: CategoryProfile, form: FormInput): Produ
 // SUBJECT distillation (the only LLM task in the image line, §7.1)
 // ---------------------------------------------------------------------------
 export async function distillSubjects(form: FormInput, profile: CategoryProfile): Promise<string[]> {
+  const metaByRef = imageMetaOf(form);
   const list = form.products
-    .map((p, i) => `[${i}] EN="${p.nameEn}" CN="${p.nameCn}"${p.sellingPointCn ? ` selling="${p.sellingPointCn}"` : ''}`)
+    .map((p, i) => {
+      const refLines = (p.rawImages || []).map((r) => imageMetaLine(metaByRef[r])).filter(Boolean);
+      const imgRef = refLines.length ? ` imgRef={${refLines.join(' ; ')}}` : '';
+      return `[${i}] EN="${p.nameEn}" CN="${p.nameCn}"${p.sellingPointCn ? ` selling="${p.sellingPointCn}"` : ''}${imgRef}`;
+    })
     .join('\n');
   const sys = `You write concise English SUBJECT descriptions for product photography prompts.
 Given a product and the category's conventional presentation, output ONE short English noun
 phrase (<=20 words) describing the physical subject to photograph — the object itself, not
 marketing. No sentences, no quotes. Category presentation guide: "${profile.visualConventions.subjectPresentation}".
+If a product line has imgRef={...} (user-provided name/description of the actual photo), USE it as a
+strong reference for what the object is — but user input can be casual, so refine it sensibly together
+with the product name; never ignore it.
 Output STRICT JSON: an array of strings, one per product, SAME ORDER.`;
   try {
     const raw = await chatText(

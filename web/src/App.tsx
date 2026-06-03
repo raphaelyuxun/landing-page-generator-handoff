@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from './api';
-import type { FormInput, ProjectListItem } from './types';
+import type { FormInput, ImageMeta, ProjectListItem } from './types';
 import Workbench from './Workbench';
 
 export default function App() {
@@ -240,51 +240,116 @@ function Home({ onOpen, onLogout }: { onOpen: (code: string) => void; onLogout: 
   );
 }
 
+type StagedImg = { ref: string; url: string; nameCn: string; nameEn: string; description: string };
+
 function NewProject({ onCreated, onCancel }: { onCreated: (code: string) => void; onCancel: () => void }) {
+  const [phase, setPhase] = useState<'form' | 'images'>('form');
   const [merchant, setMerchant] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [nameCn, setNameCn] = useState('');
   const [nameEn, setNameEn] = useState('');
   const [zip, setZip] = useState<File | null>(null);
+  const [code, setCode] = useState('');
+  const [imgs, setImgs] = useState<StagedImg[]>([]);
   const [busy, setBusy] = useState('');
   const [err, setErr] = useState('');
 
-  const submit = async () => {
+  const fields = () => ({ merchantName: merchant.trim(), categoryHint: category.trim(), nameCn: nameCn.trim(), nameEn: nameEn.trim(), productDesc: description.trim() });
+
+  // 第一步：建任务；有 zip → 暂存解压后进入"逐图信息"，无 zip → 直接开始生成
+  const next = async () => {
     setErr('');
     if (!merchant.trim()) return setErr('请填写客户公司名');
     if (!category.trim()) return setErr('请填写产品类别');
     if (!nameEn.trim()) return setErr('请填写产品英文名');
     const form: FormInput = {
-      code: '',
-      merchantName: merchant.trim(),
-      categoryHint: category.trim(),
-      companyIntroCn: '',
-      productFeaturesCn: description.trim(),
-      useScenariosCn: '',
+      code: '', merchantName: merchant.trim(), categoryHint: category.trim(),
+      companyIntroCn: '', productFeaturesCn: description.trim(), useScenariosCn: '',
       products: [{ nameCn: nameCn.trim(), nameEn: nameEn.trim(), sellingPointCn: description.trim(), rawImages: [] }],
     };
     try {
       setBusy('创建中');
       const p = await api.createProject(form);
+      setCode(p.code);
       if (zip) {
-        setBusy('上传产品图');
-        await api.uploadZip(p.code, zip);
+        setBusy('解压图片');
+        const r = await api.stageZip(p.code, zip);
+        setImgs(r.images.map((im) => ({ ref: im.ref, url: im.url, nameCn: '', nameEn: '', description: '' })));
+        setPhase('images');
+        setBusy('');
+      } else {
+        setBusy('开始生成');
+        await api.autorun(p.code);
+        onCreated(p.code);
       }
-      setBusy('开始生成');
-      await api.autorun(p.code); // kick off full generation in the background
-      onCreated(p.code);
     } catch (e) {
-      setErr(String(e));
-    } finally {
+      setErr(String(e).replace(/^Error:\s*/, ''));
       setBusy('');
     }
   };
 
+  // 第二步：提交逐图信息 + 开始生成
+  const finalize = async () => {
+    setErr('');
+    try {
+      setBusy('开始生成');
+      const meta: Record<string, ImageMeta> = {};
+      imgs.forEach((im) => {
+        const m: ImageMeta = {};
+        if (im.nameCn.trim()) m.nameCn = im.nameCn.trim();
+        if (im.nameEn.trim()) m.nameEn = im.nameEn.trim();
+        if (im.description.trim()) m.description = im.description.trim();
+        if (m.nameCn || m.nameEn || m.description) meta[im.ref] = m;
+      });
+      await api.editInput(code, fields(), { meta, staged: true });
+      onCreated(code);
+    } catch (e) {
+      setErr(String(e).replace(/^Error:\s*/, ''));
+      setBusy('');
+    }
+  };
+
+  const cancel = async () => {
+    if (code) { try { await api.deleteProject(code); } catch { /* ignore */ } }
+    onCancel();
+  };
+  const setImgField = (ref: string, k: 'nameCn' | 'nameEn' | 'description', v: string) =>
+    setImgs((cur) => cur.map((im) => (im.ref === ref ? { ...im, [k]: v } : im)));
+
   const field = 'mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm';
+
+  if (phase === 'images') {
+    return (
+      <div className="mb-6 rounded-2xl border border-gray-200 bg-gray-50 p-6">
+        <div className="mb-1 text-lg font-semibold">逐张填写图片信息（{imgs.length} 张）</div>
+        <div className="mb-3 text-xs text-gray-500">中文名 / 英文名 / 描述均<b>可选</b>；填了会作为生成的强参考（用于产品识别、文案与配图）。</div>
+        <div className="space-y-2">
+          {imgs.map((im) => (
+            <div key={im.ref} className="flex gap-2 rounded-lg bg-white p-2">
+              <img src={im.url} alt="" className="h-20 w-20 shrink-0 rounded border border-gray-200 object-cover" />
+              <div className="flex w-full flex-col gap-1">
+                <div className="grid grid-cols-2 gap-1">
+                  <input className="rounded border border-gray-200 px-2 py-1 text-xs" placeholder="产品中文名（可选）" value={im.nameCn} onChange={(e) => setImgField(im.ref, 'nameCn', e.target.value)} />
+                  <input className="rounded border border-gray-200 px-2 py-1 text-xs" placeholder="产品英文名（可选）" value={im.nameEn} onChange={(e) => setImgField(im.ref, 'nameEn', e.target.value)} />
+                </div>
+                <textarea className="min-h-[2.5rem] w-full resize-none rounded border border-gray-200 px-2 py-1 text-xs" placeholder="图片描述（可选）" value={im.description} onChange={(e) => setImgField(im.ref, 'description', e.target.value)} />
+              </div>
+            </div>
+          ))}
+        </div>
+        {err && <div className="mt-3 text-xs text-red-500">{err}</div>}
+        <div className="mt-4 flex gap-2">
+          <button disabled={!!busy} onClick={finalize} className="rounded-lg px-4 py-2 text-sm font-semibold text-gray-900 disabled:opacity-50" style={{ background: '#2dd4a0' }}>{busy ? `${busy}…` : '开始生成'}</button>
+          <button disabled={!!busy} onClick={cancel} className="rounded-lg border border-gray-300 px-4 py-2 text-sm">取消</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-6 rounded-2xl border border-gray-200 bg-gray-50 p-6">
-      <div className="mb-4 text-lg font-semibold">新建项目</div>
+      <div className="mb-4 text-lg font-semibold">创建落地页</div>
 
       <label className="text-xs font-medium text-gray-500">客户公司名 *</label>
       <input className={field} placeholder="如：金华市飞马箱包有限公司（决定列表显示名）" value={merchant} onChange={(e) => setMerchant(e.target.value)} />
@@ -312,14 +377,15 @@ function NewProject({ onCreated, onCancel }: { onCreated: (code: string) => void
         <span className={zip ? 'font-medium text-gray-700' : ''}>{zip ? zip.name : '点击选择 .zip 压缩包（产品照片）'}</span>
         <input type="file" accept=".zip,application/zip" className="hidden" onChange={(e) => setZip(e.target.files?.[0] || null)} />
       </label>
-      {zip && <div className="mt-1 text-center text-[11px] text-gray-400">{(zip.size / 1024 / 1024).toFixed(1)} MB · 点击可重新选择</div>}
+      {zip ? <div className="mt-1 text-center text-[11px] text-gray-400">{(zip.size / 1024 / 1024).toFixed(1)} MB · 下一步可为每张图填中/英文名与描述</div>
+           : <div className="mt-1 text-center text-[11px] text-gray-400">不传图也可创建（按品类生成产品变体）</div>}
 
       {err && <div className="mt-3 text-xs text-red-500">{err}</div>}
       <div className="mt-4 flex gap-2">
-        <button disabled={!!busy} onClick={submit} className="rounded-lg px-4 py-2 text-sm font-semibold text-gray-900" style={{ background: '#2dd4a0' }}>
-          {busy ? `${busy}…` : '创建任务'}
+        <button disabled={!!busy} onClick={next} className="rounded-lg px-4 py-2 text-sm font-semibold text-gray-900 disabled:opacity-50" style={{ background: '#2dd4a0' }}>
+          {busy ? `${busy}…` : zip ? '下一步：填写图片信息' : '创建并生成'}
         </button>
-        <button onClick={onCancel} className="rounded-lg border border-gray-300 px-4 py-2 text-sm">取消</button>
+        <button disabled={!!busy} onClick={onCancel} className="rounded-lg border border-gray-300 px-4 py-2 text-sm">取消</button>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import type { FormInput, KnobsConfig, Project, ProjectListItem, RevisionPlan } from './types';
+import type { FormInput, ImageMeta, KnobsConfig, Project, ProjectListItem, RevisionPlan } from './types';
 
 async function req<T>(url: string, opts: RequestInit = {}): Promise<T> {
   const res = await fetch(url, {
@@ -62,10 +62,10 @@ export const api = {
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`);
     return (await res.json()) as { images: { ref: string; url: string }[] };
   },
-  editInput: async (code: string, fields: Record<string, string>, opts?: { descriptions?: Record<string, string>; staged?: boolean }) => {
+  editInput: async (code: string, fields: Record<string, string>, opts?: { meta?: Record<string, ImageMeta>; staged?: boolean }) => {
     const fd = new FormData();
     Object.entries(fields).forEach(([k, v]) => fd.append(k, v ?? ''));
-    if (opts?.descriptions) fd.append('descriptions', JSON.stringify(opts.descriptions));
+    if (opts?.meta) fd.append('meta', JSON.stringify(opts.meta));
     if (opts?.staged) fd.append('staged', '1');
     const res = await fetch(`/api/projects/${code}/edit-input`, { method: 'POST', body: fd, credentials: 'same-origin' });
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`);

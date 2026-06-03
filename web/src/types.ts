@@ -7,10 +7,17 @@ export interface FormProductInput {
   rawImages: string[];
   modelNo?: string;
 }
+export interface ImageMeta {
+  nameCn?: string;
+  nameEn?: string;
+  description?: string;
+}
+
 export interface FormInput {
   code: string;
   merchantName?: string;
-  imageDescriptions?: Record<string, string>;
+  imageDescriptions?: Record<string, string>; // 旧字段，读取时兼容
+  imageMeta?: Record<string, ImageMeta>;
   categoryHint?: string;
   companyIntroCn: string;
   productFeaturesCn: string;

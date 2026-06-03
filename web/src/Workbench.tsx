@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from './api';
 import Preview from './Preview';
-import type { ContentData, GeneratedAsset, KnobsConfig, KnobState, LogEntry, Project, ProductData, RevisionPlan } from './types';
+import type { ContentData, GeneratedAsset, ImageMeta, KnobsConfig, KnobState, LogEntry, Project, ProductData, RevisionPlan } from './types';
 
 const BRAND = '#2dd4a0';
 const M1_MODULES = ['stats', 'certifications', 'testimonials'] as const;
@@ -510,11 +510,13 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
   const [nameEn, setNameEn] = useState(seed?.nameEn || '');
   const [productDesc, setProductDesc] = useState(project.formInput.productFeaturesCn || seed?.sellingPointCn || '');
   const [excludeRegion, setExcludeRegion] = useState(echo.exclude_region || '');
-  // 图片工作列表：初始 = 现有原图 + 现有描述
+  // 图片工作列表：每张 = {ref, url, nameCn, nameEn, description}；初始读 imageMeta（兼容旧 imageDescriptions）
+  const metaInit: Record<string, ImageMeta> = project.formInput.imageMeta
+    || Object.fromEntries(Object.entries(project.formInput.imageDescriptions || {}).map(([r, d]) => [r, { description: d } as ImageMeta]));
   const initImgs = project.formInput.products
     .flatMap((p) => p.rawImages || [])
     .filter((r, i, a) => a.indexOf(r) === i)
-    .map((ref) => ({ ref, url: `/assets/${code}/${ref}`, description: (project.formInput.imageDescriptions || {})[ref] || '' }));
+    .map((ref) => ({ ref, url: `/assets/${code}/${ref}`, nameCn: metaInit[ref]?.nameCn || '', nameEn: metaInit[ref]?.nameEn || '', description: metaInit[ref]?.description || '' }));
   const [imgs, setImgs] = useState(initImgs);
   const [staged, setStaged] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -527,7 +529,7 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
     setUploading(true);
     try {
       const r = await api.stageZip(code, file);
-      setImgs(r.images.map((im) => ({ ref: im.ref, url: im.url, description: '' })));
+      setImgs(r.images.map((im) => ({ ref: im.ref, url: im.url, nameCn: '', nameEn: '', description: '' })));
       setStaged(true);
     } catch (e) {
       setErr(String(e).replace(/^Error:\s*/, ''));
@@ -535,16 +537,23 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
       setUploading(false);
     }
   };
-  const setDesc = (ref: string, v: string) => setImgs((cur) => cur.map((im) => (im.ref === ref ? { ...im, description: v } : im)));
+  const setField = (ref: string, k: 'nameCn' | 'nameEn' | 'description', v: string) =>
+    setImgs((cur) => cur.map((im) => (im.ref === ref ? { ...im, [k]: v } : im)));
 
   const submit = async () => {
     setErr('');
     if (!nameEn.trim()) return setErr('请填写产品英文名');
     setBusy(true);
     try {
-      const descriptions: Record<string, string> = {};
-      imgs.forEach((im) => { if (im.description.trim()) descriptions[im.ref] = im.description.trim(); });
-      const p = await api.editInput(code, { merchantName, nickname, categoryHint, nameCn, nameEn, productDesc, excludeRegion }, { descriptions, staged });
+      const meta: Record<string, ImageMeta> = {};
+      imgs.forEach((im) => {
+        const m: ImageMeta = {};
+        if (im.nameCn.trim()) m.nameCn = im.nameCn.trim();
+        if (im.nameEn.trim()) m.nameEn = im.nameEn.trim();
+        if (im.description.trim()) m.description = im.description.trim();
+        if (m.nameCn || m.nameEn || m.description) meta[im.ref] = m;
+      });
+      const p = await api.editInput(code, { merchantName, nickname, categoryHint, nameCn, nameEn, productDesc, excludeRegion }, { meta, staged });
       onSaved(p);
     } catch (e) {
       setErr(String(e).replace(/^Error:\s*/, ''));
@@ -575,26 +584,32 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
         <input className={field} value={excludeRegion} onChange={(e) => setExcludeRegion(e.target.value)} />
 
         <div className="mt-4 flex items-center justify-between">
-          <label className="text-xs font-medium text-gray-500">图片与描述（{imgs.length} 张）{staged && <span className="text-emerald-600"> · 已替换为新包</span>}</label>
+          <label className="text-xs font-medium text-gray-500">图片信息（{imgs.length} 张）{staged && <span className="text-emerald-600"> · 已替换为新包</span>}</label>
           <label className="cursor-pointer rounded border border-gray-300 px-2 py-0.5 text-[11px] text-gray-600 hover:border-emerald-400">
             {uploading ? '解压中…' : '📦 上传压缩包替换全部图片'}
             <input type="file" accept=".zip,application/zip" className="hidden" onChange={(e) => onZip(e.target.files?.[0] || null)} />
           </label>
         </div>
-        <div className="mt-1 text-[11px] text-gray-400">为每张图片填写描述（强信号，平衡产品名权重）；上传压缩包会替换全部图片，取消编辑不影响原图。</div>
+        <div className="mt-1 text-[11px] text-gray-400">为每张图填中文名 / 英文名 / 描述（均可选，作生成强参考）；上传压缩包会替换全部图片，取消编辑不影响原图。</div>
         {imgs.length === 0 ? (
           <div className="mt-2 rounded-lg border border-dashed border-gray-300 p-4 text-center text-xs text-gray-400">暂无图片 — 点右上「上传压缩包」添加</div>
         ) : (
           <div className="mt-2 space-y-2">
             {imgs.map((im) => (
               <div key={im.ref} className="flex gap-2">
-                <img src={im.url} alt="" className="h-16 w-16 shrink-0 rounded border border-gray-200 object-cover" />
-                <textarea
-                  className="min-h-[4rem] w-full resize-none rounded border border-gray-200 px-2 py-1 text-xs"
-                  placeholder="这张图片的描述，例如：户外防腐不锈钢加油机外壳"
-                  value={im.description}
-                  onChange={(e) => setDesc(im.ref, e.target.value)}
-                />
+                <img src={im.url} alt="" className="h-20 w-20 shrink-0 rounded border border-gray-200 object-cover" />
+                <div className="flex w-full flex-col gap-1">
+                  <div className="grid grid-cols-2 gap-1">
+                    <input className="rounded border border-gray-200 px-2 py-1 text-xs" placeholder="产品中文名（可选）" value={im.nameCn} onChange={(e) => setField(im.ref, 'nameCn', e.target.value)} />
+                    <input className="rounded border border-gray-200 px-2 py-1 text-xs" placeholder="产品英文名（可选）" value={im.nameEn} onChange={(e) => setField(im.ref, 'nameEn', e.target.value)} />
+                  </div>
+                  <textarea
+                    className="min-h-[2.5rem] w-full resize-none rounded border border-gray-200 px-2 py-1 text-xs"
+                    placeholder="图片描述（可选），例如：户外防腐不锈钢外壳"
+                    value={im.description}
+                    onChange={(e) => setField(im.ref, 'description', e.target.value)}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -673,18 +688,29 @@ function InputDump({ project, code, onImg }: { project: Project; code: string; o
         {echo.task_type && <Row k="任务类型" v={echo.task_type} />}
       </div>
       <div>
-        <div className="mb-1 text-[10px] uppercase text-gray-400">输入原图与描述 ({imgs.length})</div>
+        <div className="mb-1 text-[10px] uppercase text-gray-400">输入原图与信息 ({imgs.length})</div>
         {imgs.length === 0 ? (
           <div className="text-gray-400">无</div>
         ) : (
           <div className="space-y-1.5">
             {imgs.map((r, i) => {
               const u = `/assets/${code}/${r}`;
-              const d = (project.formInput.imageDescriptions || {})[r];
+              const m: ImageMeta | undefined = (project.formInput.imageMeta || {})[r]
+                || ((project.formInput.imageDescriptions || {})[r] ? { description: (project.formInput.imageDescriptions || {})[r] } : undefined);
+              const hasAny = m && (m.nameCn || m.nameEn || m.description);
               return (
                 <div key={i} className="flex gap-2">
                   <img src={u} alt="" onClick={() => onImg(u)} className="h-12 w-12 shrink-0 cursor-zoom-in rounded border border-gray-200 object-cover" />
-                  <div className="min-w-0 flex-1 self-center text-[11px] leading-snug text-gray-600">{d || <span className="text-gray-300">（无描述）</span>}</div>
+                  <div className="min-w-0 flex-1 self-center text-[11px] leading-snug text-gray-600">
+                    {hasAny ? (
+                      <>
+                        {(m!.nameCn || m!.nameEn) && <div className="text-gray-700">{[m!.nameCn, m!.nameEn].filter(Boolean).join(' / ')}</div>}
+                        {m!.description && <div className="text-gray-500">{m!.description}</div>}
+                      </>
+                    ) : (
+                      <span className="text-gray-300">（无信息）</span>
+                    )}
+                  </div>
                 </div>
               );
             })}

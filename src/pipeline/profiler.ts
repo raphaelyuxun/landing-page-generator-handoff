@@ -5,6 +5,7 @@
 import { chatJSON } from '../aigw/client.js';
 import { loadAnchors } from '../config.js';
 import type { CategoryProfile, FormInput, RecommendedCombo } from '../types.js';
+import { imageMetaLine, imageMetaOf } from '../types.js';
 
 const PROFILE_SYSTEM = `You are a B2B export sourcing strategist. Given a Chinese supplier's raw form input
 (company intro, product features, use scenarios, product names), infer a structured
@@ -97,9 +98,9 @@ function formInputDigest(form: FormInput): string {
   if (form.companyIntroCn?.trim()) lines.push(`Company intro (CN): ${form.companyIntroCn}`);
   if (form.productFeaturesCn?.trim()) lines.push(`Product description (CN): ${form.productFeaturesCn}`);
   if (form.useScenariosCn?.trim()) lines.push(`Use scenarios (CN): ${form.useScenariosCn}`);
-  const imgDescs = Object.values(form.imageDescriptions || {}).filter((d) => d && d.trim());
-  if (imgDescs.length) {
-    lines.push(`User-provided per-image descriptions (STRONG signal about the real product — weigh at least as heavily as the product name, which may be generic): ${imgDescs.join(' | ')}`);
+  const imgRefs = Object.values(imageMetaOf(form)).map(imageMetaLine).filter(Boolean);
+  if (imgRefs.length) {
+    lines.push(`User-provided per-image metadata (name_en/name_cn/desc — STRONG reference about the real products; weigh at least as heavily as the primary name, which may be generic): ${imgRefs.join(' || ')}`);
   }
   lines.push(`Products:\n${products}`);
   return lines.join('\n');
