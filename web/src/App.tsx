@@ -302,7 +302,7 @@ function NewProject({ onCreated, onCancel }: { onCreated: (code: string) => void
         if (im.description.trim()) m.description = im.description.trim();
         if (m.nameCn || m.nameEn || m.description) meta[im.ref] = m;
       });
-      await api.editInput(code, fields(), { meta, staged: true });
+      await api.editInput(code, fields(), { meta, images: imgs.map((im) => im.ref) });
       onCreated(code);
     } catch (e) {
       setErr(String(e).replace(/^Error:\s*/, ''));
@@ -314,6 +314,16 @@ function NewProject({ onCreated, onCancel }: { onCreated: (code: string) => void
     if (code) { try { await api.deleteProject(code); } catch { /* ignore */ } }
     onCancel();
   };
+  const onAddImage = async (file: File | null) => {
+    if (!file || !code) return;
+    setErr(''); setBusy('上传中');
+    try {
+      const r = await api.stageImage(code, file);
+      setImgs((cur) => [...cur, { ref: r.ref, url: r.url, nameCn: '', nameEn: '', description: '' }]);
+    } catch (e) { setErr(String(e).replace(/^Error:\s*/, '')); }
+    finally { setBusy(''); }
+  };
+  const removeImg = (ref: string) => setImgs((cur) => cur.filter((im) => im.ref !== ref));
   const setImgField = (ref: string, k: 'nameCn' | 'nameEn' | 'description', v: string) =>
     setImgs((cur) => cur.map((im) => (im.ref === ref ? { ...im, [k]: v } : im)));
 
@@ -322,12 +332,22 @@ function NewProject({ onCreated, onCancel }: { onCreated: (code: string) => void
   if (phase === 'images') {
     return (
       <div className="mb-6 rounded-2xl border border-gray-200 bg-gray-50 p-6">
-        <div className="mb-1 text-lg font-semibold">逐张填写图片信息（{imgs.length} 张）</div>
-        <div className="mb-3 text-xs text-gray-500">中文名 / 英文名 / 描述均<b>可选</b>；填了会作为生成的强参考（用于产品识别、文案与配图）。</div>
+        <div className="mb-1 flex items-center justify-between">
+          <div className="text-lg font-semibold">逐张填写图片信息（{imgs.length} 张）</div>
+          <label className="cursor-pointer rounded border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:border-emerald-400">
+            {busy === '上传中' ? '上传中…' : '➕ 单张添加'}
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => { onAddImage(e.target.files?.[0] || null); e.currentTarget.value = ''; }} />
+          </label>
+        </div>
+        <div className="mb-3 text-xs text-gray-500">中文名 / 英文名 / 描述均<b>可选</b>；填了会作为生成的强参考（用于产品识别、文案与配图）。可单张添加 / 删除（✕）。</div>
         <div className="space-y-2">
+          {imgs.length === 0 && <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-xs text-gray-400">已无图片 — 点「单张添加」，或直接「开始生成」按品类生成产品变体</div>}
           {imgs.map((im) => (
             <div key={im.ref} className="flex gap-2 rounded-lg bg-white p-2">
-              <img src={im.url} alt="" className="h-20 w-20 shrink-0 rounded border border-gray-200 object-cover" />
+              <div className="relative shrink-0">
+                <img src={im.url} alt="" className="h-20 w-20 rounded border border-gray-200 object-cover" />
+                <button onClick={() => removeImg(im.ref)} title="删除这张图" className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white shadow hover:bg-red-600">✕</button>
+              </div>
               <div className="flex w-full flex-col gap-1">
                 <div className="grid grid-cols-2 gap-1">
                   <input className="rounded border border-gray-200 px-2 py-1 text-xs" placeholder="产品中文名（可选）" value={im.nameCn} onChange={(e) => setImgField(im.ref, 'nameCn', e.target.value)} />

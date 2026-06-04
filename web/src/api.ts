@@ -62,10 +62,18 @@ export const api = {
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`);
     return (await res.json()) as { images: { ref: string; url: string }[] };
   },
-  editInput: async (code: string, fields: Record<string, string>, opts?: { meta?: Record<string, ImageMeta>; staged?: boolean }) => {
+  stageImage: async (code: string, file: File) => {
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch(`/api/projects/${code}/stage-image`, { method: 'POST', body: fd, credentials: 'same-origin' });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`);
+    return (await res.json()) as { ref: string; url: string };
+  },
+  editInput: async (code: string, fields: Record<string, string>, opts?: { meta?: Record<string, ImageMeta>; images?: string[]; staged?: boolean }) => {
     const fd = new FormData();
     Object.entries(fields).forEach(([k, v]) => fd.append(k, v ?? ''));
     if (opts?.meta) fd.append('meta', JSON.stringify(opts.meta));
+    if (opts?.images) fd.append('images', JSON.stringify(opts.images));
     if (opts?.staged) fd.append('staged', '1');
     const res = await fetch(`/api/projects/${code}/edit-input`, { method: 'POST', body: fd, credentials: 'same-origin' });
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`);

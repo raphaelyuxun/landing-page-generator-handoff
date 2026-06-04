@@ -236,18 +236,18 @@ app.post('/api/projects/:code/stage-zip', requireAuth, uploadZip.single('zip'), 
   if (!req.file) return res.status(400).json({ error: 'no zip uploaded' });
   const stageDir = path.join(assetsDir(p.code), 'raw-staging');
   fs.mkdirSync(stageDir, { recursive: true });
-  for (const f of fs.readdirSync(stageDir)) fs.rmSync(path.join(stageDir, f), { force: true });
+  // 不清空暂存：与单图添加混用；最终以 edit-input 的 images 列表为准（提交时清理未引用的）
   const images: { ref: string; url: string }[] = [];
   try {
     const zip = new AdmZip(req.file.buffer);
+    const stamp = Date.now().toString(36);
     let n = 0;
     for (const e of zip.getEntries()) {
       if (e.isDirectory || e.entryName.includes('__MACOSX')) continue;
       const bn = path.basename(e.entryName);
       if (!IMG_EXT.test(bn) || bn.startsWith('.')) continue;
-      const name = `up-${n++}-${bn.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+      const name = `up-${stamp}-${n++}-${bn.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
       fs.writeFileSync(path.join(stageDir, name), e.getData());
-      // ref 是提交后在 raw/ 里的最终路径（前端用它作为 descriptions 的 key）
       images.push({ ref: path.join('raw', name), url: `/assets/${p.code}/raw-staging/${name}` });
     }
     if (!images.length) return res.status(400).json({ error: 'zip 内没有可用图片' });
@@ -255,6 +255,20 @@ app.post('/api/projects/:code/stage-zip', requireAuth, uploadZip.single('zip'), 
     return res.status(400).json({ error: `bad zip: ${String(e)}` });
   }
   res.json({ images });
+});
+
+// 暂存单张上传的图片（字段名 'image'）→ raw-staging/，返回 {ref,url}，由前端加入工作列表。
+app.post('/api/projects/:code/stage-image', requireAuth, uploadZip.single('image'), (req, res) => {
+  const p = getProject(req.params.code);
+  if (!p) return res.status(404).json({ error: 'not found' });
+  if (!req.file) return res.status(400).json({ error: 'no image uploaded' });
+  const bn = path.basename(req.file.originalname || 'image.jpg');
+  if (!IMG_EXT.test(bn)) return res.status(400).json({ error: '不是图片文件（png/jpg/jpeg/webp/gif/bmp）' });
+  const stageDir = path.join(assetsDir(p.code), 'raw-staging');
+  fs.mkdirSync(stageDir, { recursive: true });
+  const name = `up-${Date.now().toString(36)}-s-${bn.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+  fs.writeFileSync(path.join(stageDir, name), req.file.buffer);
+  res.json({ ref: path.join('raw', name), url: `/assets/${p.code}/raw-staging/${name}` });
 });
 
 // 编辑输入内容（兜底）。multipart：文字字段 + descriptions(JSON, key=最终ref) + staged 标记；可选 legacy zip 'zip'。
@@ -271,10 +285,34 @@ app.post('/api/projects/:code/edit-input', requireAuth, uploadZip.single('zip'),
   try { if (typeof b.meta === 'string' && b.meta.trim()) metaInput = JSON.parse(b.meta); } catch { /* ignore */ }
   const hasMetaField = typeof b.meta === 'string';
 
-  // 1) 图片来源：暂存提交（首选）→ legacy 直传 zip → 否则保留现有
-  const useStaged = (b.staged === '1' || b.staged === 'true') && fs.existsSync(stageDir) && fs.readdirSync(stageDir).length > 0;
+  // 1) 图片：优先按前端最终列表 images 重建 raw/（支持单张增删 + zip 替换混用）
+  //    images = 最终 ref 数组（混合"已在 raw/ 的" 与 "在 raw-staging/ 的新图"）
+  let finalRefs: string[] | null = null;
+  if (typeof b.images === 'string') {
+    try { const arr = JSON.parse(b.images); if (Array.isArray(arr)) finalRefs = arr.map(String).filter(Boolean); } catch { /* ignore */ }
+  }
   let replacedImages = false;
-  if (useStaged) {
+  let rawImages: string[] = [];
+
+  if (finalRefs) {
+    fs.mkdirSync(dir, { recursive: true });
+    const wantBn = new Set(finalRefs.map((r) => path.basename(r)));
+    // 把暂存里被引用的新图搬进 raw/，其余暂存清掉
+    if (fs.existsSync(stageDir)) {
+      for (const f of fs.readdirSync(stageDir)) {
+        if (wantBn.has(f)) fs.renameSync(path.join(stageDir, f), path.join(dir, f));
+      }
+      fs.rmSync(stageDir, { recursive: true, force: true });
+    }
+    // 删除 raw/ 中未被引用的（即被删除的图）
+    for (const f of fs.readdirSync(dir)) {
+      if (!wantBn.has(f)) fs.rmSync(path.join(dir, f), { force: true });
+    }
+    // 按前端顺序保留实际存在的
+    rawImages = finalRefs.filter((r) => fs.existsSync(path.join(assetsDir(p.code), r)));
+    replacedImages = true;
+  } else if ((b.staged === '1' || b.staged === 'true') && fs.existsSync(stageDir) && fs.readdirSync(stageDir).length > 0) {
+    // legacy：整包替换
     fs.mkdirSync(dir, { recursive: true });
     for (const f of fs.readdirSync(dir)) fs.rmSync(path.join(dir, f), { force: true });
     for (const f of fs.readdirSync(stageDir)) fs.renameSync(path.join(stageDir, f), path.join(dir, f));
@@ -299,11 +337,12 @@ app.post('/api/projects/:code/edit-input', requireAuth, uploadZip.single('zip'),
     }
   }
 
-  // 2) 以 raw/ 目录实际文件为准，收集全部输入图（重生成的图片源）
-  let rawImages: string[] = [];
-  try {
-    rawImages = fs.readdirSync(dir).filter((f) => IMG_EXT.test(f)).sort().map((f) => path.join('raw', f));
-  } catch { /* no raw dir */ }
+  // 2) 未走 images 列表（无任何图片改动）→ 以 raw/ 目录实际文件为准
+  if (!finalRefs) {
+    try {
+      rawImages = fs.readdirSync(dir).filter((f) => IMG_EXT.test(f)).sort().map((f) => path.join('raw', f));
+    } catch { /* no raw dir */ }
+  }
 
   // 3) 图片元数据：弹窗传了 meta → 以它为准（过滤到现存图）；否则兼容沿用旧值（或随替换清空）
   const s = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);

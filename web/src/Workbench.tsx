@@ -518,7 +518,6 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
     .filter((r, i, a) => a.indexOf(r) === i)
     .map((ref) => ({ ref, url: `/assets/${code}/${ref}`, nameCn: metaInit[ref]?.nameCn || '', nameEn: metaInit[ref]?.nameEn || '', description: metaInit[ref]?.description || '' }));
   const [imgs, setImgs] = useState(initImgs);
-  const [staged, setStaged] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -529,14 +528,29 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
     setUploading(true);
     try {
       const r = await api.stageZip(code, file);
+      // zip = 替换全部：用 zip 的图替换工作列表
       setImgs(r.images.map((im) => ({ ref: im.ref, url: im.url, nameCn: '', nameEn: '', description: '' })));
-      setStaged(true);
     } catch (e) {
       setErr(String(e).replace(/^Error:\s*/, ''));
     } finally {
       setUploading(false);
     }
   };
+  const onAddImage = async (file: File | null) => {
+    if (!file) return;
+    setErr('');
+    setUploading(true);
+    try {
+      const r = await api.stageImage(code, file);
+      // 单张追加到工作列表
+      setImgs((cur) => [...cur, { ref: r.ref, url: r.url, nameCn: '', nameEn: '', description: '' }]);
+    } catch (e) {
+      setErr(String(e).replace(/^Error:\s*/, ''));
+    } finally {
+      setUploading(false);
+    }
+  };
+  const removeImg = (ref: string) => setImgs((cur) => cur.filter((im) => im.ref !== ref));
   const setField = (ref: string, k: 'nameCn' | 'nameEn' | 'description', v: string) =>
     setImgs((cur) => cur.map((im) => (im.ref === ref ? { ...im, [k]: v } : im)));
 
@@ -553,7 +567,7 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
         if (im.description.trim()) m.description = im.description.trim();
         if (m.nameCn || m.nameEn || m.description) meta[im.ref] = m;
       });
-      const p = await api.editInput(code, { merchantName, nickname, categoryHint, nameCn, nameEn, productDesc, excludeRegion }, { meta, staged });
+      const p = await api.editInput(code, { merchantName, nickname, categoryHint, nameCn, nameEn, productDesc, excludeRegion }, { meta, images: imgs.map((im) => im.ref) });
       onSaved(p);
     } catch (e) {
       setErr(String(e).replace(/^Error:\s*/, ''));
@@ -584,20 +598,29 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
         <input className={field} value={excludeRegion} onChange={(e) => setExcludeRegion(e.target.value)} />
 
         <div className="mt-4 flex items-center justify-between">
-          <label className="text-xs font-medium text-gray-500">图片信息（{imgs.length} 张）{staged && <span className="text-emerald-600"> · 已替换为新包</span>}</label>
-          <label className="cursor-pointer rounded border border-gray-300 px-2 py-0.5 text-[11px] text-gray-600 hover:border-emerald-400">
-            {uploading ? '解压中…' : '📦 上传压缩包替换全部图片'}
-            <input type="file" accept=".zip,application/zip" className="hidden" onChange={(e) => onZip(e.target.files?.[0] || null)} />
-          </label>
+          <label className="text-xs font-medium text-gray-500">图片信息（{imgs.length} 张）</label>
+          <div className="flex items-center gap-1">
+            <label className="cursor-pointer rounded border border-gray-300 px-2 py-0.5 text-[11px] text-gray-600 hover:border-emerald-400">
+              {uploading ? '处理中…' : '➕ 单张添加'}
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => { onAddImage(e.target.files?.[0] || null); e.currentTarget.value = ''; }} />
+            </label>
+            <label className="cursor-pointer rounded border border-gray-300 px-2 py-0.5 text-[11px] text-gray-600 hover:border-emerald-400">
+              📦 压缩包替换全部
+              <input type="file" accept=".zip,application/zip" className="hidden" onChange={(e) => { onZip(e.target.files?.[0] || null); e.currentTarget.value = ''; }} />
+            </label>
+          </div>
         </div>
-        <div className="mt-1 text-[11px] text-gray-400">为每张图填中文名 / 英文名 / 描述（均可选，作生成强参考）；上传压缩包会替换全部图片，取消编辑不影响原图。</div>
+        <div className="mt-1 text-[11px] text-gray-400">可单张添加、单张删除（✕），或用压缩包替换全部；每张可填中文名 / 英文名 / 描述（均可选，作生成强参考）。取消编辑不影响原图。</div>
         {imgs.length === 0 ? (
-          <div className="mt-2 rounded-lg border border-dashed border-gray-300 p-4 text-center text-xs text-gray-400">暂无图片 — 点右上「上传压缩包」添加</div>
+          <div className="mt-2 rounded-lg border border-dashed border-gray-300 p-4 text-center text-xs text-gray-400">暂无图片 — 点「单张添加」或「压缩包替换全部」</div>
         ) : (
           <div className="mt-2 space-y-2">
             {imgs.map((im) => (
               <div key={im.ref} className="flex gap-2">
-                <img src={im.url} alt="" className="h-20 w-20 shrink-0 rounded border border-gray-200 object-cover" />
+                <div className="relative shrink-0">
+                  <img src={im.url} alt="" className="h-20 w-20 rounded border border-gray-200 object-cover" />
+                  <button onClick={() => removeImg(im.ref)} title="删除这张图" className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white shadow hover:bg-red-600">✕</button>
+                </div>
                 <div className="flex w-full flex-col gap-1">
                   <div className="grid grid-cols-2 gap-1">
                     <input className="rounded border border-gray-200 px-2 py-1 text-xs" placeholder="产品中文名（可选）" value={im.nameCn} onChange={(e) => setField(im.ref, 'nameCn', e.target.value)} />
