@@ -33,6 +33,8 @@ export interface FormInput {
   imageDescriptions?: Record<string, string>;
   /** 每张输入图的元数据（外部 images[].{name_cn,name_en,description}，或手动录入），键为 rawImages 的 ref。三字段均可选。 */
   imageMeta?: Record<string, ImageMeta>;
+  /** 全部输入图的权威全集（ref 列表）。segment 会把产品收敛、各产品只引用子集，故展示与重生成都以此为准。 */
+  allRawImages?: string[];
   /** explicit product category provided by the operator (产品类别) — strong profiler signal */
   categoryHint?: string;
   companyIntroCn: string;

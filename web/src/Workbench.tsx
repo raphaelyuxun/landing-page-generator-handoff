@@ -513,8 +513,9 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
   // 图片工作列表：每张 = {ref, url, nameCn, nameEn, description}；初始读 imageMeta（兼容旧 imageDescriptions）
   const metaInit: Record<string, ImageMeta> = project.formInput.imageMeta
     || Object.fromEntries(Object.entries(project.formInput.imageDescriptions || {}).map(([r, d]) => [r, { description: d } as ImageMeta]));
-  const initImgs = project.formInput.products
-    .flatMap((p) => p.rawImages || [])
+  const initImgs = (project.formInput.allRawImages && project.formInput.allRawImages.length
+    ? project.formInput.allRawImages
+    : project.formInput.products.flatMap((p) => p.rawImages || []))
     .filter((r, i, a) => a.indexOf(r) === i)
     .map((ref) => ({ ref, url: `/assets/${code}/${ref}`, nameCn: metaInit[ref]?.nameCn || '', nameEn: metaInit[ref]?.nameEn || '', description: metaInit[ref]?.description || '' }));
   const [imgs, setImgs] = useState(initImgs);
@@ -694,7 +695,8 @@ function Lightbox({ url, onClose }: { url: string; onClose: () => void }) {
 function InputDump({ project, code, onImg }: { project: Project; code: string; onImg: (url: string) => void }) {
   const f = project.formInput;
   const echo = (project.echo || {}) as Record<string, string>;
-  const imgs = f.products.flatMap((p) => p.rawImages || []);
+  const imgs = (f.allRawImages && f.allRawImages.length ? f.allRawImages : f.products.flatMap((p) => p.rawImages || []))
+    .filter((r, i, a) => a.indexOf(r) === i);
   const Row = ({ k, v }: { k: string; v?: string }) => (
     <div className="flex gap-1"><span className="shrink-0 text-gray-400">{k}：</span><span className="break-words text-gray-700">{v || '—'}</span></div>
   );

@@ -380,6 +380,7 @@ app.post('/api/projects/:code/edit-input', requireAuth, uploadZip.single('zip'),
     productFeaturesCn: str(b.productDesc) || p.formInput.productFeaturesCn,
     imageMeta,
     imageDescriptions: undefined, // 统一用 imageMeta
+    allRawImages: rawImages, // 权威全部输入图（最终列表）
     products: [seed],
   };
 
@@ -874,6 +875,7 @@ function startExtGeneration(code: string, items: ImageItem[]): GenerationProject
     if (!results.length) throw new Error('产品图全部下载失败');
     const refs = results.map((r) => r.ref);
     p.formInput.products.forEach((pd) => { pd.rawImages = refs; });
+    p.formInput.allRawImages = refs; // 权威全部输入图
     const meta: Record<string, ImageMeta> = {};
     for (const r of results) if (r.meta) meta[r.ref] = r.meta;
     p.formInput.imageMeta = Object.keys(meta).length ? meta : undefined;

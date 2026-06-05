@@ -18,6 +18,7 @@ export interface FormInput {
   merchantName?: string;
   imageDescriptions?: Record<string, string>; // 旧字段，读取时兼容
   imageMeta?: Record<string, ImageMeta>;
+  allRawImages?: string[];
   categoryHint?: string;
   companyIntroCn: string;
   productFeaturesCn: string;
