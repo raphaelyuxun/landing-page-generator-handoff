@@ -66,8 +66,15 @@ function startJob(code: string, kind: JobStatus['kind'], work: JobWork): Generat
       p.job = { ...(p.job as JobStatus), step, current, total };
       log('info', total != null ? `${step} (${current}/${total})` : step);
     };
+    // 看门狗：单个 job 的最长墙钟时间。relayPost 已对每次 AIGW 调用做超时，
+    // 这里再兜底——任何未设超时的 await 也不会让 job 永久卡在 running（否则
+    // 列表会显示“约剩 N 分钟”却永远不动）。超时即判失败、可重新触发。
+    const JOB_MAX_MS = 20 * 60 * 1000;
+    const watchdog = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`任务超时：超过 ${Math.round(JOB_MAX_MS / 60000)} 分钟未完成，已判失败（可重试）`)), JOB_MAX_MS),
+    );
     try {
-      await work(p, update, log);
+      await Promise.race([work(p, update, log), watchdog]);
       p.job = { ...(p.job as JobStatus), status: 'done', step: '完成', finishedAt: nowISO() };
       log('info', '✓ 完成');
     } catch (e) {

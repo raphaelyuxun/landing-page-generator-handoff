@@ -10,6 +10,9 @@ interface ChatMessage {
   content: string | unknown;
 }
 
+/** 拿到了响应的业务错误（参数错误 / 非 JSON 等）——不应重试，与网络/超时错误区分。 */
+class AigwBusinessError extends Error {}
+
 interface ChatOptions {
   model?: string;
   maxTokens?: number;
@@ -41,38 +44,42 @@ async function relayPost(body: unknown, timeoutMs: number): Promise<any> {
   for (let i = 0; i < attempts; i++) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-    let res: Response;
     try {
-      res = await fetch(url, {
+      const res = await fetch(url, {
         method: 'POST',
         headers,
         body: JSON.stringify(body),
         signal: ctrl.signal,
       });
+      // 读取响应体也必须在同一个超时/中断保护内。隧道在收到响应头之后、传输
+      // body（图片是大段 base64）过程中卡住时，res.text() 本身没有超时，会无限
+      // 挂起——这正是任务卡死 13 小时的真因。把 clearTimeout 放到 finally，让
+      // ctrl.signal 覆盖整个请求生命周期（fetch + 读 body）。
+      const text = await res.text();
+      let json: any;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new AigwBusinessError(`AIGW relay returned non-JSON (${res.status}): ${text.slice(0, 300)}`);
+      }
+      // 拿到了响应的业务错误（如参数错误）——不重试
+      if (!res.ok || json?.error) {
+        const msg = json?.error?.message || json?.error || text.slice(0, 300);
+        throw new AigwBusinessError(`AIGW error (${res.status}): ${typeof msg === 'string' ? msg : JSON.stringify(msg)}`);
+      }
+      return json;
     } catch (e) {
-      // network-level failure (relay down / tunnel reconnecting / timeout) → retry
-      clearTimeout(timer);
+      if (e instanceof AigwBusinessError) throw e; // 业务错误立即抛出，不重试
+      // 网络/超时/中断（relay 挂、隧道重连、body 传输卡死被 abort）→ 重试
       lastErr = e;
       if (i < attempts - 1) {
         await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
         continue;
       }
       throw new Error(`AIGW 连接失败（${config.aigwMode} 模式，已重试 ${attempts} 次，${config.aigwMode === 'direct' ? 'AIGW 直连不可用' : 'relay 可能不可用'}）：${String(e)}`);
+    } finally {
+      clearTimeout(timer);
     }
-    clearTimeout(timer);
-    const text = await res.text();
-    let json: any;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      throw new Error(`AIGW relay returned non-JSON (${res.status}): ${text.slice(0, 300)}`);
-    }
-    // a got-a-response error is a business error (e.g. bad params) — do NOT retry
-    if (!res.ok || json?.error) {
-      const msg = json?.error?.message || json?.error || text.slice(0, 300);
-      throw new Error(`AIGW error (${res.status}): ${typeof msg === 'string' ? msg : JSON.stringify(msg)}`);
-    }
-    return json;
   }
   throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }
