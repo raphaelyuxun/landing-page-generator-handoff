@@ -22,6 +22,10 @@ export const config = {
   aigwAppKey: process.env.AIGW_APP_KEY || '',
   textModel: process.env.TEXT_MODEL || 'claude-opus-4-6',
   imageModel: process.env.IMAGE_MODEL || 'gemini-3-pro-image',
+  /** 产出产品数上限（聚合页可调高）。每多 1 个产品多 1 次 i2i 出图，任务时长成正比增长。 */
+  maxProducts: Math.max(1, Number(process.env.MAX_PRODUCTS || 8)),
+  /** 喂给视觉模型“理解产品范围”的图片数上限（均匀采样）。聚合页产品多时应同步调高，否则识别不全。 */
+  maxVisionImages: Math.max(1, Number(process.env.MAX_VISION_IMAGES || 16)),
   dataDir: path.resolve(ROOT, process.env.DATA_DIR || './data'),
   configDir: path.resolve(ROOT, 'config'),
   /** public base URL for externally-reachable asset links in exported JSON */

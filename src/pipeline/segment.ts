@@ -9,12 +9,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { chatJSON } from '../aigw/client.js';
+import { config } from '../config.js';
 import { assetsDir } from '../store/projects.js';
 import type { CategoryProfile, FormInput, FormProductInput } from '../types.js';
 import { imageMetaLine, imageMetaOf } from '../types.js';
 
-const MAX_VISION_IMAGES = 16; // 喂给视觉模型理解用的图片数上限（均匀采样）
-const MAX_PRODUCTS = 8;        // 产出受控：最多 8 个产品（= 产品图数）
+// 喂给视觉模型理解用的图片数上限（均匀采样）/ 产出产品数上限：均可经 .env 调整（聚合页调高）
+const MAX_VISION_IMAGES = config.maxVisionImages;
+const MAX_PRODUCTS = config.maxProducts;
 const VISION_MAX_DIM = 512;    // 喂模型前缩小，降低 token/延迟，使"多喂图"可行
 
 async function rawToDataUri(code: string, ref: string): Promise<string | null> {
