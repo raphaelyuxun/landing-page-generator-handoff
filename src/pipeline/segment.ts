@@ -59,7 +59,8 @@ short DESCRIPTION, a PRIMARY product name, and a set of the supplier's product P
 RULES:
 1. Examine the photos and identify VISUALLY DISTINCT products.
 2. If MULTIPLE distinct products are visible, output ONE entry per distinct product
-   (up to ${MAX_PRODUCTS}); assign each product the photo indexes that show it.
+   (up to the MAX PRODUCTS limit stated in the user message); assign each product the
+   photo indexes that show it.
 3. If ALL photos are clearly the SAME product (just different angles / lighting / packaging /
    close-ups), output EXACTLY ONE product. Do NOT invent fake grades or variants. Assign all
    relevant photo indexes to that single product.
@@ -77,6 +78,14 @@ export async function segmentProducts(form: FormInput, profile: CategoryProfile)
   const primary = form.products[0];
   // 以全部输入图为准（allRawImages 为权威全集；兼容旧任务取 primary.rawImages）
   const allRaw = (form.allRawImages && form.allRawImages.length ? form.allRawImages : primary?.rawImages) || [];
+  // 每任务产品数上限：调优时可设 targetProductCount（逐任务），且硬约束 ≤ 上传图片数；
+  // 未设则用全局默认 MAX_PRODUCTS。
+  const effectiveMax = Math.max(
+    1,
+    allRaw.length > 0
+      ? Math.min(form.targetProductCount || MAX_PRODUCTS, allRaw.length)
+      : form.targetProductCount || MAX_PRODUCTS,
+  );
   const pick = sampleIndexes(allRaw.length, MAX_VISION_IMAGES);
   const uris: string[] = [];
   const uriRefIndex: number[] = []; // maps vision image index -> index into allRaw
@@ -94,6 +103,7 @@ export async function segmentProducts(form: FormInput, profile: CategoryProfile)
     `CATEGORY: ${form.categoryHint || profile.categoryLabel}`,
     `DESCRIPTION: ${form.productFeaturesCn || primary?.sellingPointCn || ''}`,
     `PRIMARY PRODUCT: ${primary?.nameEn} / ${primary?.nameCn}`,
+    `MAX PRODUCTS: output AT MOST ${effectiveMax} product(s). Never exceed this number.`,
     allRaw.length > uris.length ? `(${allRaw.length} photos uploaded in total; ${uris.length} representative ones shown below.)` : '',
     hasMeta
       ? `Each photo below may carry USER-PROVIDED metadata (name_en / name_cn / desc) — a STRONG reference you MUST consider; names may be casual, refine them into clean ones, never ignore them.`
@@ -129,7 +139,7 @@ export async function segmentProducts(form: FormInput, profile: CategoryProfile)
   // map back to FormProductInput, resolving image indexes to the original rawImages refs
   const products: FormProductInput[] = entries
     .filter((e) => e && (e.nameEn || e.nameCn))
-    .slice(0, MAX_PRODUCTS)
+    .slice(0, effectiveMax)
     .map((e) => {
       const idxs = Array.isArray(e.imageIndexes) ? e.imageIndexes : [];
       const rawImages = idxs

@@ -380,6 +380,12 @@ app.post('/api/projects/:code/edit-input', requireAuth, uploadZip.single('zip'),
     sellingPointCn: str(b.productDesc) || undefined,
     rawImages,
   };
+  // 目标产品数：空/0/非法 → 不限（用全局默认）；否则硬约束 ≤ 上传图片数
+  let targetProductCount: number | undefined;
+  if (b.targetProductCount !== undefined && b.targetProductCount !== '') {
+    const n = Math.floor(Number(b.targetProductCount));
+    if (Number.isFinite(n) && n >= 1) targetProductCount = rawImages.length > 0 ? Math.min(n, rawImages.length) : n;
+  }
   p.formInput = {
     ...p.formInput,
     merchantName: str(b.merchantName) || p.formInput.merchantName,
@@ -388,6 +394,7 @@ app.post('/api/projects/:code/edit-input', requireAuth, uploadZip.single('zip'),
     imageMeta,
     imageDescriptions: undefined, // 统一用 imageMeta
     allRawImages: rawImages, // 权威全部输入图（最终列表）
+    targetProductCount,
     products: [seed],
   };
 
@@ -942,8 +949,11 @@ app.post('/api/ext/landingpages', requireApiKey, (req, res) => {
   }
 
   const variantNo = isVariant ? findByCampaign(campaignId).reduce((m, x) => Math.max(m, x.variantNo ?? 0), -1) + 1 : 0;
+  // 可选 max_products：聚合页指定产品数；segment 阶段会再硬约束 ≤ 实际下载到的图片数
+  const maxProductsReq = Number(b.max_products);
   const form: FormInput = {
     code: '', categoryHint: b.industry, companyIntroCn: '', productFeaturesCn: b.product_desc, useScenariosCn: '',
+    ...(Number.isFinite(maxProductsReq) && maxProductsReq >= 1 ? { targetProductCount: Math.floor(maxProductsReq) } : {}),
     products: [{ nameCn: b.product_name_cn, nameEn: b.product_name_en, sellingPointCn: b.product_desc, rawImages: [] }],
   };
   const p = createProject(form, { campaignId, isVariant, variantNo, echo, fallback: 'lp-' + campaignId });

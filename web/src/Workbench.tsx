@@ -519,6 +519,7 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
     .filter((r, i, a) => a.indexOf(r) === i)
     .map((ref) => ({ ref, url: `/assets/${code}/${ref}`, nameCn: metaInit[ref]?.nameCn || '', nameEn: metaInit[ref]?.nameEn || '', description: metaInit[ref]?.description || '' }));
   const [imgs, setImgs] = useState(initImgs);
+  const [targetCount, setTargetCount] = useState<string>(project.formInput.targetProductCount != null ? String(project.formInput.targetProductCount) : '');
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -568,7 +569,7 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
         if (im.description.trim()) m.description = im.description.trim();
         if (m.nameCn || m.nameEn || m.description) meta[im.ref] = m;
       });
-      const p = await api.editInput(code, { merchantName, nickname, categoryHint, nameCn, nameEn, productDesc, excludeRegion }, { meta, images: imgs.map((im) => im.ref) });
+      const p = await api.editInput(code, { merchantName, nickname, categoryHint, nameCn, nameEn, productDesc, excludeRegion, targetProductCount: targetCount }, { meta, images: imgs.map((im) => im.ref) });
       onSaved(p);
     } catch (e) {
       setErr(String(e).replace(/^Error:\s*/, ''));
@@ -597,6 +598,20 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
         <textarea className={field} rows={3} value={productDesc} onChange={(e) => setProductDesc(e.target.value)} />
         <label className="mt-3 block text-xs font-medium text-gray-500">排除地区</label>
         <input className={field} value={excludeRegion} onChange={(e) => setExcludeRegion(e.target.value)} />
+
+        <label className="mt-3 block text-xs font-medium text-gray-500">目标产品数（聚合页用 · 留空=自动 · 上限=上传图片数）</label>
+        <input
+          className={field}
+          type="number"
+          min={1}
+          max={imgs.length || undefined}
+          placeholder={imgs.length ? `留空自动；最多 ${imgs.length} 个（=图片数）` : '留空自动'}
+          value={targetCount}
+          onChange={(e) => setTargetCount(e.target.value)}
+        />
+        {targetCount && imgs.length > 0 && Number(targetCount) > imgs.length && (
+          <div className="mt-1 text-[11px] text-amber-600">超过上传图片数（{imgs.length}），保存时会自动收敛为 {imgs.length} 个。</div>
+        )}
 
         <div className="mt-4 flex items-center justify-between">
           <label className="text-xs font-medium text-gray-500">图片信息（{imgs.length} 张）</label>

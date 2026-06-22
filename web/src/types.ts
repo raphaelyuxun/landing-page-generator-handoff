@@ -19,6 +19,7 @@ export interface FormInput {
   imageDescriptions?: Record<string, string>; // 旧字段，读取时兼容
   imageMeta?: Record<string, ImageMeta>;
   allRawImages?: string[];
+  targetProductCount?: number;
   categoryHint?: string;
   companyIntroCn: string;
   productFeaturesCn: string;

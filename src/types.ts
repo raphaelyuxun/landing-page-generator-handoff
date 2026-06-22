@@ -35,6 +35,8 @@ export interface FormInput {
   imageMeta?: Record<string, ImageMeta>;
   /** 全部输入图的权威全集（ref 列表）。segment 会把产品收敛、各产品只引用子集，故展示与重生成都以此为准。 */
   allRawImages?: string[];
+  /** 逐任务的目标产品数（调优时设定）。硬约束 ≤ 上传图片数；未设则用全局 config.maxProducts。 */
+  targetProductCount?: number;
   /** explicit product category provided by the operator (产品类别) — strong profiler signal */
   categoryHint?: string;
   companyIntroCn: string;
