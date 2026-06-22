@@ -17,3 +17,7 @@ data-test/
 
 # relay 配置含 AIGW AppKey
 relay/relay.config.json
+
+# 上线回滚包（运行时生成，单环境本地保留一份）
+.rollback/
+.rollback-staging/
