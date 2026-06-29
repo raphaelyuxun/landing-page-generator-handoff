@@ -72,7 +72,11 @@ RULES:
    { "nameEn": string, "nameCn": string, "sellingPointCn": string, "imageIndexes": number[] }.
    No prose, no markdown.`;
 
-export async function segmentProducts(form: FormInput, profile: CategoryProfile): Promise<FormProductInput[]> {
+export async function segmentProducts(
+  form: FormInput,
+  profile: CategoryProfile,
+  log?: (level: 'info' | 'warn' | 'error', msg: string) => void,
+): Promise<FormProductInput[]> {
   const primary = form.products[0];
   // 以全部输入图为准（allRawImages 为权威全集；兼容旧任务取 primary.rawImages）
   const allRaw = (form.allRawImages && form.allRawImages.length ? form.allRawImages : primary?.rawImages) || [];
@@ -121,15 +125,19 @@ export async function segmentProducts(form: FormInput, profile: CategoryProfile)
   const content: unknown = uris.length > 0 ? parts : userText;
 
   let entries: SegEntry[] = [];
+  let segErr: unknown = null;
   try {
     entries = await chatJSON<SegEntry[]>(
       [
         { role: 'system', content: SYS },
         { role: 'user', content },
       ],
-      { maxTokens: 1500, temperature: 0.4 },
+      // maxTokens 随产品上限放大：枚举几十个产品的 JSON 会超过 1500 被截断 → 解析失败 →
+      // 静默回退成 1 个产品（曾在 ~37 张图时出现）。按 effectiveMax 估算输出预算并封顶。
+      { maxTokens: Math.min(16000, 1200 + effectiveMax * 220), temperature: 0.4 },
     );
-  } catch {
+  } catch (e) {
+    segErr = e;
     entries = [];
   }
   if (!Array.isArray(entries)) entries = [];
@@ -152,7 +160,10 @@ export async function segmentProducts(form: FormInput, profile: CategoryProfile)
       };
     });
 
-  // 至少 1 个产品（不再凑等级变体）
+  // 至少 1 个产品（不再凑等级变体）；若有图却识别为空，说明识别调用失败/截断 → 显式告警，别静默回退
+  if (products.length === 0 && uris.length > 0) {
+    log?.('warn', `产品识别未返回有效结果（已喂 ${uris.length} 张图），回退为 1 个产品${segErr ? '：' + String(segErr).slice(0, 140) : '（模型未输出可解析的产品列表）'}`);
+  }
   if (products.length === 0) {
     products.push({
       nameEn: (primary?.nameEn || 'Product').trim(),

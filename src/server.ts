@@ -427,7 +427,7 @@ app.post('/api/projects/:code/profile', requireAuth, (req, res) => {
     update('识别压缩包内产品…');
     const rawCount = p.formInput.products[0]?.rawImages?.length || 0;
     if (rawCount === 0) log('warn', '压缩包内没有可用图片，将按品类生成产品变体');
-    const products = await segmentProducts(p.formInput, profile);
+    const products = await segmentProducts(p.formInput, profile, log);
     p.formInput = { ...p.formInput, products };
     log('info', `识别出 ${products.length} 个产品：${products.map((x) => x.nameEn).join('、')}`);
     // set a sensible default knob baseline so the prompt box is usable immediately,
@@ -524,7 +524,7 @@ async function autorunWork(
         p.recommendedCombos = await generateCombos(p.categoryProfile);
       }
       update('识别压缩包内产品…');
-      const products = await segmentProducts(p.formInput, p.categoryProfile);
+      const products = await segmentProducts(p.formInput, p.categoryProfile, log);
       p.formInput = { ...p.formInput, products };
       log('info', `识别出 ${products.length} 个产品：${products.map((x) => x.nameEn).join('、')}`);
       p.knobState = resolveKnobState(p.categoryProfile, p.recommendedCombos?.[0] ?? null, { directionNote: DEFAULT_DIRECTION });
