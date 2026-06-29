@@ -599,7 +599,7 @@ function EditInputModal({ project, code, onClose, onSaved }: { project: Project;
         <label className="mt-3 block text-xs font-medium text-gray-500">排除地区</label>
         <input className={field} value={excludeRegion} onChange={(e) => setExcludeRegion(e.target.value)} />
 
-        <label className="mt-3 block text-xs font-medium text-gray-500">目标产品数（聚合页用 · 留空=自动 · 上限=上传图片数）</label>
+        <label className="mt-3 block text-xs font-medium text-gray-500">目标产品数（聚合页用 · 留空=不限 · 上限=上传图片数）</label>
         <input
           className={field}
           type="number"

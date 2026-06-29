@@ -2,8 +2,9 @@
  * Product segmentation — turns the uploaded photos into a bounded product list.
  *
  * 解耦"理解"与"产出"：
- *  - 理解：尽量多喂图（缩小 + 均匀采样，最多 MAX_VISION_IMAGES 张）让模型看清产品范围；
- *  - 产出：产品数 = 真实识别出的不同产品数，封顶 MAX_PRODUCTS；同一产品的多角度图 → 1 个产品（不凑克隆）。
+ *  - 理解：默认喂全部图（缩小后），让模型看清产品范围；可选 MAX_VISION_IMAGES 节流。
+ *  - 产出：无硬上限。软上限 = 上传图片数；逐任务 targetProductCount 可再调低。
+ *           产品数 = 真实识别出的不同产品数；同一产品的多角度图 → 1 个产品（不凑克隆）。
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -14,9 +15,6 @@ import { assetsDir } from '../store/projects.js';
 import type { CategoryProfile, FormInput, FormProductInput } from '../types.js';
 import { imageMetaLine, imageMetaOf } from '../types.js';
 
-// 喂给视觉模型理解用的图片数上限（均匀采样）/ 产出产品数上限：均可经 .env 调整（聚合页调高）
-const MAX_VISION_IMAGES = config.maxVisionImages;
-const MAX_PRODUCTS = config.maxProducts;
 const VISION_MAX_DIM = 512;    // 喂模型前缩小，降低 token/延迟，使"多喂图"可行
 
 async function rawToDataUri(code: string, ref: string): Promise<string | null> {
@@ -78,15 +76,15 @@ export async function segmentProducts(form: FormInput, profile: CategoryProfile)
   const primary = form.products[0];
   // 以全部输入图为准（allRawImages 为权威全集；兼容旧任务取 primary.rawImages）
   const allRaw = (form.allRawImages && form.allRawImages.length ? form.allRawImages : primary?.rawImages) || [];
-  // 每任务产品数上限：调优时可设 targetProductCount（逐任务），且硬约束 ≤ 上传图片数；
-  // 未设则用全局默认 MAX_PRODUCTS。
-  const effectiveMax = Math.max(
-    1,
-    allRaw.length > 0
-      ? Math.min(form.targetProductCount || MAX_PRODUCTS, allRaw.length)
-      : form.targetProductCount || MAX_PRODUCTS,
-  );
-  const pick = sampleIndexes(allRaw.length, MAX_VISION_IMAGES);
+  // 产品数无硬上限：软上限 = 上传图片数（无图退化为 1）；逐任务 targetProductCount 可再调低。
+  const imgCount = allRaw.length;
+  const softCap = imgCount > 0 ? imgCount : Math.max(1, form.targetProductCount || 1);
+  const effectiveMax = form.targetProductCount
+    ? Math.max(1, Math.min(form.targetProductCount, softCap))
+    : softCap;
+  // 默认喂全部图（让模型能识别到“图片数”这么多不同产品）；仅当 MAX_VISION_IMAGES>0 才节流采样。
+  const visionLimit = config.maxVisionImages > 0 ? config.maxVisionImages : imgCount;
+  const pick = sampleIndexes(imgCount, Math.max(1, visionLimit));
   const uris: string[] = [];
   const uriRefIndex: number[] = []; // maps vision image index -> index into allRaw
   for (const i of pick) {
