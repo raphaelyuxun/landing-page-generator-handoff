@@ -1,0 +1,55 @@
+{
+  "code": "solar-panel",
+  "schemaVersion": 1,
+  "updateTime": "2026-06-02 18:25:25",
+  "title": "Marine LiFePO4 48V Systems",
+  "subtitle": "Corrosion-resistant battery packs with automotive-grade BMS for vessel propulsion",
+  "banner": "https://easesourcer.omni-marketeer.com/public/assets/solar-panel/images/banner.jpg",
+  "cta": {
+    "bottomTitle": "Request Technical Documentation",
+    "bottomSubtitle": "Our engineering team will prepare a detailed specification package for your project requirements."
+  },
+  "stats": {
+    "sectionTitle": "Production & Performance Overview",
+    "items": [
+      { "value": "14+", "label": "Years in Marine Battery Manufacturing" },
+      { "value": "50,000+", "label": "Annual Production Capacity (pcs)" },
+      { "value": "45+", "label": "Countries Exported" },
+      { "value": "5000+", "label": "Cycle Life (cycles)" }
+    ]
+  },
+  "trust": {
+    "sectionTitle": "Why Manufacturers Choose Us",
+    "items": [
+      { "icon": "🏭", "title": "Own Factory", "desc": "14 production lines under one roof, full process control." },
+      { "icon": "🛡️", "title": "Certified Quality", "desc": "CE · UN38.3 · IEC 62619 audit-ready documentation." },
+      { "icon": "🔧", "title": "OEM / ODM", "desc": "Custom enclosure, BMS protocol and capacity on request." },
+      { "icon": "🚢", "title": "Global Logistics", "desc": "Export to 45+ countries with hazmat-compliant shipping." }
+    ]
+  },
+  "certifications": {
+    "sectionTitle": "Compliance & Classification",
+    "items": ["CE", "UN38.3", "IEC 62619", "ISO 9001", "MSDS", "RoHS", "CCS (China Classification Society)", "DNV-GL"]
+  },
+  "testimonials": {
+    "sectionTitle": "Partner Feedback",
+    "items": [
+      { "quote": "We integrated these packs into our hybrid ferry fleet. The BMS communication via CAN bus aligned seamlessly with our existing vessel management system. Consistent cell balancing across all units after 18 months of operation.", "author": "M. Lindgren, Sweden - Marine Systems Engineer" },
+      { "quote": "Documentation and compliance packages were audit-ready from first delivery. UN38.3 test reports and IEC 62619 certificates matched our import requirements without revision.", "author": "P. Vandenberg, Netherlands - Procurement Director" },
+      { "quote": "We specified custom enclosure dimensions and RS485 protocol integration for our OEM line. Prototypes delivered within the agreed timeline, with full traceability on cell sourcing.", "author": "K. Hoffmann, Germany - Product Development Lead" }
+    ]
+  },
+  "faq": {
+    "sectionTitle": "Frequently Asked Questions",
+    "items": [
+      { "q": "What is your minimum order quantity (MOQ)?", "a": "Standard MOQ is 10 packs for stock models; custom OEM configurations start at 50 packs. Sample units are available for evaluation." },
+      { "q": "Do you provide compliance documentation for import?", "a": "Yes. Every shipment includes UN38.3 test reports, IEC 62619 certificates, MSDS and CE declarations matched to your destination market." },
+      { "q": "Can you customize the BMS protocol and enclosure?", "a": "We support CAN bus and RS485 protocols, custom capacity, and SUS304 / AL5052 enclosures sized to your vessel specification." },
+      { "q": "What are your typical lead times?", "a": "Stock models ship within 7-10 days. Custom OEM orders are typically delivered in 25-35 days after prototype approval." }
+    ]
+  },
+  "contact": {
+    "wa": "+85270850592",
+    "email": "sales@easesourcing.com"
+  }
+}

@@ -3,9 +3,9 @@ dist/
 web/dist/
 web/node_modules/
 
-# 任务数据与资源（含客户数据，不入库）
-data/
-data-test/
+# 任务数据与资源（含客户数据，不入库）——锚定根目录，避免误伤 templates/data 等
+/data/
+/data-test/
 
 *.log
 .DS_Store

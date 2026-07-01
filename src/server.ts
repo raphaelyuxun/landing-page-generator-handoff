@@ -1006,11 +1006,25 @@ app.get('/assets/:code/*', requireAuth, (req, res) => {
 // ---------------------------------------------------------------------------
 // Static frontend
 // ---------------------------------------------------------------------------
+// 落地页模板预览（原 template.omni-marketeer.com，已并入本项目）：/templates 下静态托管，
+// 与工作台同一道登录门（未登录→跳工作台登录页）。extensions:['html'] 支持无扩展名路由 /templates/brand-story。
+const templatesDir = path.join(ROOT, 'templates');
+if (fs.existsSync(templatesDir)) {
+  app.use(
+    '/templates',
+    (req, res, next) => {
+      if (req.signedCookies?.[AUTH_COOKIE] === 'ok') return next();
+      return res.redirect('/');
+    },
+    express.static(templatesDir, { extensions: ['html'] }),
+  );
+}
+
 const webDist = path.join(ROOT, 'web', 'dist');
 if (fs.existsSync(webDist)) {
   app.use(express.static(webDist));
   app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api') || req.path.startsWith('/assets')) return next();
+    if (req.path.startsWith('/api') || req.path.startsWith('/assets') || req.path.startsWith('/templates')) return next();
     res.sendFile(path.join(webDist, 'index.html'));
   });
 }

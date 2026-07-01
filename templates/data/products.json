@@ -1,0 +1,93 @@
+{
+  "success": true,
+  "message": "",
+  "code": 200,
+  "data": [
+    {
+      "id": "solar-panel-1",
+      "code": "solar-panel",
+      "productName": "Marine LiFePO4 48V Battery Pack – Standard Grade",
+      "subtitle": "MLP-48S",
+      "description": "48V LiFePO4 propulsion pack in SUS304 enclosure, IP67-rated with balanced BMS supporting CAN/RS485 communication.",
+      "images": ["https://easesourcer.omni-marketeer.com/public/assets/solar-panel/images/product-1.jpg"],
+      "price": 0,
+      "quantity": 0,
+      "updateTime": "2026-06-02 18:25:25",
+      "specs": [
+        { "label": "Nominal Voltage", "value": "48 V (51.2 V)" },
+        { "label": "Capacity / Energy", "value": "100 Ah · 5.12 kWh" },
+        { "label": "Cell Chemistry", "value": "LiFePO4, automotive-grade prismatic cells" },
+        { "label": "Cycle Life", "value": "≥ 5,000 cycles @ 80% DoD" },
+        { "label": "BMS", "value": "Integrated, active balancing, CAN / RS485" },
+        { "label": "Enclosure / Rating", "value": "SUS304, IP67" },
+        { "label": "Operating Temperature", "value": "-20 °C to +60 °C (discharge)" },
+        { "label": "Dimensions / Weight", "value": "520 × 270 × 240 mm · 42 kg" },
+        { "label": "Compliance", "value": "CE · UN38.3 · IEC 62619 · MSDS" },
+        { "label": "Warranty", "value": "5 years" }
+      ]
+    },
+    {
+      "id": "solar-panel-2",
+      "code": "solar-panel",
+      "productName": "Marine LiFePO4 48V Battery Pack – Premium Grade",
+      "subtitle": "MLP-48P",
+      "description": "Enhanced-cycle 48V LiFePO4 system in AL5052 housing, designed for high-salinity environments with automotive-grade BMS.",
+      "images": ["https://easesourcer.omni-marketeer.com/public/assets/solar-panel/images/product-2.jpg"],
+      "price": 0,
+      "quantity": 0,
+      "updateTime": "2026-06-02 18:25:25",
+      "specs": [
+        { "label": "Nominal Voltage", "value": "48 V (51.2 V)" },
+        { "label": "Capacity / Energy", "value": "200 Ah · 10.24 kWh" },
+        { "label": "Cell Chemistry", "value": "LiFePO4, automotive-grade prismatic cells" },
+        { "label": "Cycle Life", "value": "≥ 6,000 cycles @ 80% DoD" },
+        { "label": "BMS", "value": "Integrated, active balancing, CAN / RS485" },
+        { "label": "Enclosure / Rating", "value": "AL5052 marine-grade, IP67" },
+        { "label": "Operating Temperature", "value": "-20 °C to +60 °C (discharge)" },
+        { "label": "Compliance", "value": "CE · UN38.3 · IEC 62619 · DNV-GL" },
+        { "label": "Warranty", "value": "5 years" }
+      ]
+    },
+    {
+      "id": "solar-panel-3",
+      "code": "solar-panel",
+      "productName": "Marine LiFePO4 48V Battery Pack – Industrial Grade",
+      "subtitle": "MLP-48I",
+      "description": "Heavy-duty 48V LiFePO4 pack with reinforced corrosion-resistant enclosure, engineered for continuous vessel propulsion loads.",
+      "images": ["https://easesourcer.omni-marketeer.com/public/assets/solar-panel/images/product-3.jpg"],
+      "price": 0,
+      "quantity": 0,
+      "updateTime": "2026-06-02 18:25:25",
+      "specs": [
+        { "label": "Nominal Voltage", "value": "48 V (51.2 V)" },
+        { "label": "Capacity / Energy", "value": "300 Ah · 15.36 kWh" },
+        { "label": "Cell Chemistry", "value": "LiFePO4, automotive-grade prismatic cells" },
+        { "label": "Cycle Life", "value": "≥ 6,000 cycles @ 80% DoD" },
+        { "label": "BMS", "value": "Integrated, active balancing, CAN / RS485" },
+        { "label": "Enclosure / Rating", "value": "Reinforced SUS316, IP68" },
+        { "label": "Compliance", "value": "CE · UN38.3 · IEC 62619 · CCS" },
+        { "label": "Warranty", "value": "5 years" }
+      ]
+    },
+    {
+      "id": "solar-panel-4",
+      "code": "solar-panel",
+      "productName": "Marine LiFePO4 24V Auxiliary Pack",
+      "subtitle": "MLP-24A",
+      "description": "Compact 24V auxiliary power pack for onboard electronics and lighting, with low self-discharge and integrated protection.",
+      "images": ["https://easesourcer.omni-marketeer.com/public/assets/solar-panel/images/product-1.jpg"],
+      "price": 0,
+      "quantity": 0,
+      "updateTime": "2026-06-02 18:25:25",
+      "specs": [
+        { "label": "Nominal Voltage", "value": "24 V (25.6 V)" },
+        { "label": "Capacity / Energy", "value": "100 Ah · 2.56 kWh" },
+        { "label": "Cell Chemistry", "value": "LiFePO4 prismatic cells" },
+        { "label": "Cycle Life", "value": "≥ 4,000 cycles @ 80% DoD" },
+        { "label": "Enclosure / Rating", "value": "ABS + flame-retardant, IP65" },
+        { "label": "Compliance", "value": "CE · UN38.3 · RoHS" },
+        { "label": "Warranty", "value": "3 years" }
+      ]
+    }
+  ]
+}

@@ -140,6 +140,7 @@ function Home({ onOpen, onLogout }: { onOpen: (code: string) => void; onLogout: 
         </div>
         <div className="flex shrink-0 gap-2">
           <button onClick={() => setCreating(true)} className="whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold text-gray-900" style={{ background: '#2dd4a0' }}>+ 创建落地页</button>
+          <a href="/templates/" className="whitespace-nowrap rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-gray-400">模板预览</a>
           <button onClick={onLogout} className="whitespace-nowrap rounded-lg border border-gray-300 px-4 py-2 text-sm">退出</button>
         </div>
       </div>

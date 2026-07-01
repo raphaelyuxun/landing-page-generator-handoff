@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EaseSourcing · 落地页模板预览</title>
+<link rel="icon" type="image/png" href="/templates/favicon.png" />
+<style>
+  :root{--brand:#2dd4a0;--brand-active:#1aa97c;--ink:#0f172a;--muted:#64748b;--line:#e5e7eb;--bg:#f6f8fa;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+    --serif:Georgia,"Times New Roman",serif;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:54px 22px 90px}
+  .head{text-align:center;margin-bottom:44px}
+  .logo{font-size:24px;font-weight:800;letter-spacing:-.02em}
+  .logo span{color:var(--brand-active)}
+  h1{font-size:30px;font-weight:800;margin:18px 0 10px}
+  .head p{color:var(--muted);max-width:640px;margin:0 auto;font-size:15.5px}
+  .docs-link{display:inline-flex;align-items:center;gap:7px;margin-top:18px;text-decoration:none;font-weight:700;font-size:14px;
+    color:#334155;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 16px}
+  .docs-link:hover{border-color:var(--brand);color:var(--brand-active)}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    text-decoration:none;color:inherit;transition:box-shadow .2s,transform .2s,border-color .2s}
+  .card:hover{box-shadow:0 24px 50px -28px rgba(15,23,42,.5);transform:translateY(-4px);border-color:#cbd5e1}
+  .thumb{aspect-ratio:16/10;position:relative;overflow:hidden}
+  .tag{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.92);color:#0f172a;font-size:11px;font-weight:700;
+    padding:4px 10px;border-radius:999px;border:1px solid var(--line);z-index:2}
+  .demo{position:absolute;inset:14px;border-radius:10px;display:grid;gap:6px}
+  /* split */
+  .t-split{background:linear-gradient(120deg,#fff 0 50%,#e9fbf4 50% 100%)}
+  .t-split .demo{grid-template-columns:1fr 1fr;align-items:center}
+  .t-split .bar{height:8px;border-radius:4px;background:#cbd5e1}
+  .t-split .btn{height:14px;width:60%;border-radius:5px;background:var(--brand)}
+  .t-split .img{height:74%;border-radius:8px;background:#bfe9da}
+  /* dark */
+  .t-dark{background:linear-gradient(135deg,#0a0f1a,#0b3a2c)}
+  .t-dark .demo{align-content:center;justify-items:center}
+  .t-dark .bar{height:9px;border-radius:4px;background:#334155;width:70%}
+  .t-dark .bar.lg{height:13px;width:55%;background:#475569}
+  .t-dark .btn{height:14px;width:42%;border-radius:5px;background:var(--brand);margin-top:4px}
+  /* catalog */
+  .t-cat{background:#eef2f5}
+  .t-cat .demo{grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr}
+  .t-cat .cell{border-radius:7px;background:#fff;border:1px solid #d8e0e6}
+  /* showroom */
+  .t-show{background:linear-gradient(160deg,#11221c,#1f3a30)}
+  .t-show .demo{grid-template-rows:1fr auto}
+  .t-show .big{border-radius:9px;background:linear-gradient(135deg,#2dd4a0,#0e6b50);opacity:.85}
+  .t-show .cap{height:9px;width:60%;border-radius:4px;background:rgba(255,255,255,.5)}
+  /* brand-story */
+  .t-story{background:#fffdf9}
+  .t-story .demo{align-content:center;justify-items:center;gap:8px}
+  .t-story .aa{font-family:var(--serif);font-size:34px;font-weight:700;color:var(--brand-active);line-height:1}
+  .t-story .bar{height:7px;border-radius:4px;background:#e7e2d8;width:62%}
+  .t-story .bar.s{width:40%}
+  .body{padding:18px 20px 22px}
+  .name{font-size:18px;font-weight:800}
+  .slug{font-size:12px;color:#94a3b8;margin-top:2px;font-family:ui-monospace,Menlo,monospace}
+  .desc{font-size:13.5px;color:var(--muted);margin-top:10px}
+  .feats{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+  .feats li{font-size:11.5px;color:#475569;background:#f1f5f9;border-radius:6px;padding:3px 8px}
+  .open{margin-top:16px;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--brand-active)}
+  .note{margin-top:30px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;color:var(--muted);font-size:13px}
+  .note b{color:var(--ink)}
+  .foot{margin-top:30px;text-align:center;color:#94a3b8;font-size:12.5px}
+  @media(max-width:920px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:620px){.grid{grid-template-columns:1fr}h1{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="logo">Ease<span>Sourcing</span></div>
+    <h1>落地页模板预览</h1>
+    <p>同一份 <code>content.json</code> + <code>products.json</code>，5 套版式自由切换。统一复用转化按钮：Get a Quote · Chat on WhatsApp · Chat Now。点击卡片查看实时渲染效果。</p>
+    <a class="docs-link" href="/templates/docs">📖 研发接入文档（README）</a>
+    <a class="docs-link" href="/" style="margin-left:8px">← 返回工作台</a>
+  </div>
+
+  <div class="grid">
+    <a class="card" href="/templates/split-editorial">
+      <div class="thumb t-split"><span class="tag">Light · 通用</span>
+        <div class="demo">
+          <div style="display:grid;gap:6px"><div class="bar" style="width:80%"></div><div class="bar" style="width:60%"></div><div class="btn"></div></div>
+          <div class="img"></div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="name">Split Editorial</div><div class="slug">/split-editorial</div>
+        <div class="desc">浅色克制、信任前置。左右分栏 Hero，适合大多数品类与品牌形象。</div>
+        <ul class="feats"><li>分栏 Hero</li><li>数据横条</li><li>FAQ 手风琴</li><li>WhatsApp 气泡</li></ul>
+        <span class="open">查看 →</span>
+      </div>
+    </a>
+
+    <a class="card" href="/templates/dark-premium">
+      <div class="thumb t-dark"><span class="tag">Dark · 高端</span>
+        <div class="demo"><div class="bar lg"></div><div class="bar"></div><div class="btn"></div></div>
+      </div>
+      <div class="body">
+        <div class="name">Dark Premium</div><div class="slug">/dark-premium</div>
+        <div class="desc">深色高端、强转化。全幅 Hero + 交替媒体行，适合高客单价定位。</div>
+        <ul class="feats"><li>全幅暗色 Hero</li><li>交替媒体行</li><li>认证 ribbon</li><li>移动端吸底</li></ul>
+        <span class="open">查看 →</span>
+      </div>
+    </a>
+
+    <a class="card" href="/templates/catalog-grid">
+      <div class="thumb t-cat"><span class="tag">Light · 多 SKU</span>
+        <div class="demo"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+      </div>
+      <div class="body">
+        <div class="name">Catalog Grid</div><div class="slug">/catalog-grid</div>
+        <div class="desc">密集目录网格，信息密度高。含 About EaseSourcing 品牌带，适合多 SKU。</div>
+        <ul class="feats"><li>4 列目录</li><li>品牌带</li><li>FAQ+评价双栏</li><li>移动端吸底</li></ul>
+        <span class="open">查看 →</span>
+      </div>
+    </a>
+
+    <a class="card" href="/templates/showroom">
+      <div class="thumb t-show"><span class="tag">Showroom · 沉浸</span>
+        <div class="demo"><div class="big"></div><div class="cap"></div></div>
+      </div>
+      <div class="body">
+        <div class="name">Showroom</div><div class="slug">/showroom</div>
+        <div class="desc">沉浸式陈列。大图 Hero + 特色产品大展位 + 产品画廊 + EaseSourcing 品牌故事。</div>
+        <ul class="feats"><li>沉浸 Hero</li><li>特色大展位</li><li>产品画廊</li><li>品牌故事</li></ul>
+        <span class="open">查看 →</span>
+      </div>
+    </a>
+
+    <a class="card" href="/templates/brand-story">
+      <div class="thumb t-story"><span class="tag">叙事 · 编辑风</span>
+        <div class="demo"><div class="aa">Aa</div><div class="bar"></div><div class="bar s"></div></div>
+      </div>
+      <div class="body">
+        <div class="name">Brand Story</div><div class="slug">/brand-story</div>
+        <div class="desc">编辑/叙事风（衬线）。EaseSourcing 故事 + FAST 流程时间线 + 精选产品。</div>
+        <ul class="feats"><li>衬线编辑风</li><li>品牌故事</li><li>FAST 流程线</li><li>精选产品</li></ul>
+        <span class="open">查看 →</span>
+      </div>
+    </a>
+
+    <a class="card" href="/templates/docs" style="background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border-color:#1e293b">
+      <div class="body" style="display:flex;flex-direction:column;justify-content:center;height:100%;min-height:200px">
+        <div style="font-size:34px">📖</div>
+        <div class="name" style="margin-top:10px">研发接入文档</div>
+        <div class="slug" style="color:#94a3b8">/docs · README</div>
+        <div class="desc" style="color:#cbd5e1">数据契约、配置接入、转化按钮行为、模板说明 —— 网页版 README。</div>
+        <span class="open" style="color:#7df0cf">阅读文档 →</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="note">
+    <b>给研发：</b> 5 套版式均为独立 HTML+JS 单文件，运行时 <code>fetch</code> 同一数据契约渲染；只改各文件顶部 <code>&lt;script id="lp-config"&gt;</code> 即可接入真实数据源与转化按钮跳转。完整说明见 <a href="/templates/docs" style="color:var(--brand-active)">网页文档</a>。当前预览使用 <code>data/</code> 下的 solar-panel 示例数据。
+  </div>
+
+  <div class="foot">© 2026 EaseSourcing · NetEase (NASDAQ: NTES) · 模板预览环境</div>
+</div>
+</body>
+</html>

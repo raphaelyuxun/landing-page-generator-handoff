@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EaseSourcing — Brand Story Template · v1.1</title>
+<meta name="description" content="China product sourcing — OEM manufacturing & verified suppliers, backed by NetEase." />
+<link rel="icon" type="image/png" href="/templates/favicon.png" />
+<style>
+  /* ============================================================
+     EaseSourcing Landing Template — "Brand Story" (editorial)
+     Self-contained. Renders from content.json + products.json.
+     EaseSourcing narrative + FAST process timeline + curated
+     products. Conversion: Chat on WhatsApp / Get a Quote / Chat Now.
+     ============================================================ */
+  :root{
+    --brand:#2dd4a0; --brand-hover:#22c08e; --brand-active:#13855f; --brand-ink:#06281f;
+    --wa:#25D366; --wa-hover:#1ebe5a;
+    --ink:#1c2420; --muted:#6b7674; --line:#e7e2d8;
+    --bg:#fffdf9; --bg-soft:#f6f2ea; --ink-band:#13211c;
+    --maxw:1140px;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.62;-webkit-font-smoothing:antialiased}
+  img{display:block;max-width:100%}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .narrow{max-width:780px;margin-left:auto;margin-right:auto}
+  h1,h2,h3{margin:0;line-height:1.18}
+  .sec{padding:80px 0}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--brand-active)}
+  .sec-title{font-family:var(--serif);font-size:34px;font-weight:700;margin:12px 0 0;letter-spacing:-.01em}
+  .sec-lead{color:var(--muted);font-size:16.5px;margin:14px 0 0}
+  .center{text-align:center}
+  .center .sec-lead{margin-left:auto;margin-right:auto;max-width:600px}
+  .hidden{display:none !important}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font-family:var(--sans);
+    font-weight:700;font-size:15px;padding:14px 26px;border-radius:11px;min-height:50px;transition:background .15s,transform .05s,border-color .15s}
+  .btn:active{transform:translateY(1px)}
+  .btn svg{width:20px;height:20px;flex:0 0 auto}
+  .btn-brand{background:var(--brand);color:var(--brand-ink)}
+  .btn-brand:hover{background:var(--brand-hover)}
+  .btn-wa{background:var(--wa);color:#fff}
+  .btn-wa:hover{background:var(--wa-hover)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid #d8d2c6}
+  .btn-ghost:hover{border-color:var(--brand);color:var(--brand-active)}
+  .btn-sm{padding:10px 16px;font-size:13.5px;min-height:42px;border-radius:10px}
+  .btn-block{width:100%}
+  .icon-btn{width:46px;height:46px;min-height:0;padding:0;flex:0 0 auto}
+
+  /* header */
+  header.site{position:sticky;top:0;z-index:40;background:rgba(255,253,249,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header.site .wrap{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .brandmark{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .brandmark span{color:var(--brand-active)}
+
+  /* hero editorial (centered text + framed banner) */
+  .hero{padding:72px 0 0;text-align:center}
+  .hero h1{font-family:var(--serif);font-size:52px;font-weight:700;margin:18px auto 0;max-width:840px;letter-spacing:-.015em}
+  .hero p.sub{font-size:19px;color:var(--muted);margin:20px auto 30px;max-width:600px}
+  .hero .cta-row{display:flex;gap:13px;justify-content:center;flex-wrap:wrap}
+  .hero .frame{margin-top:56px;border-radius:20px 20px 0 0;overflow:hidden;aspect-ratio:21/9;background:var(--bg-soft);box-shadow:0 -1px 0 var(--line)}
+  .hero .frame img{width:100%;height:100%;object-fit:cover}
+
+  /* story (built by netease) */
+  .story{background:var(--bg-soft)}
+  .story .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+  .story h2{font-family:var(--serif);font-size:32px;font-weight:700;margin:12px 0 0}
+  .story p{color:#55615d;font-size:16.5px;margin:18px 0 0}
+  .story .built{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:12.5px;font-weight:700;color:#3c4a45;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 16px}
+  .story .pstats{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .story .pcell{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px}
+  .story .pcell .v{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--brand-active)}
+  .story .pcell .l{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.4}
+
+  /* FAST process timeline */
+  .proc{position:relative}
+  .proc .track{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:50px;position:relative}
+  .proc .track::before{content:"";position:absolute;top:27px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,var(--brand),#cfeae0)}
+  .step{position:relative;text-align:center}
+  .step .num{width:56px;height:56px;border-radius:50%;background:var(--brand);color:var(--brand-ink);font-family:var(--serif);
+    font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative;z-index:2;
+    box-shadow:0 0 0 6px var(--bg)}
+  .step h3{font-size:18px;font-weight:800;margin:18px 0 6px}
+  .step p{font-size:14px;color:var(--muted);margin:0}
+
+  /* curated products */
+  .cur{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;margin-top:48px}
+  .ccard{display:grid;grid-template-columns:42% 1fr;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+  .ccard .ph{background:var(--bg-soft)}
+  .ccard .ph img{width:100%;height:100%;object-fit:cover;min-height:180px}
+  .ccard .body{padding:22px;display:flex;flex-direction:column}
+  .ccard .model{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-active)}
+  .ccard .name{font-family:var(--serif);font-size:19px;font-weight:700;margin:6px 0 0;line-height:1.25}
+  .ccard .desc{font-size:13.5px;color:var(--muted);margin:9px 0 16px;flex:1}
+  .ccard .actions{display:flex;gap:8px}
+
+  /* certifications ribbon */
+  .ribbon{background:var(--ink-band);color:#fff}
+  .ribbon .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;padding:30px 24px}
+  .ribbon .lead{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7df0cf;width:100%;text-align:center;margin-bottom:4px}
+  .ribbon .pill{border:1px solid rgba(255,255,255,.2);color:#e2e8f0;border-radius:999px;padding:8px 18px;font-size:13.5px}
+
+  /* testimonials */
+  .tg{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:46px}
+  .tcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+  .tcard q{font-family:var(--serif);font-style:italic;color:#3c4a45;font-size:16px;display:block;line-height:1.5}
+  .tcard .who{margin-top:16px;font-weight:700;font-size:12.5px;color:var(--brand-active)}
+
+  /* faq */
+  .faq{max-width:780px;margin:44px auto 0}
+  .qa{border-bottom:1px solid var(--line)}
+  .qa>button{width:100%;background:none;border:0;cursor:pointer;font-family:var(--sans);display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0;text-align:left;font-size:17px;font-weight:600;color:var(--ink)}
+  .qa .chev{color:var(--brand-active);font-size:22px;transition:transform .2s;flex:0 0 auto}
+  .qa.open .chev{transform:rotate(45deg)}
+  .qa .ans{max-height:0;overflow:hidden;transition:max-height .25s ease;color:var(--muted);font-size:15px}
+  .qa.open .ans{max-height:340px}
+  .qa .ans p{margin:0 0 22px}
+
+  /* closing CTA */
+  .cta-band{text-align:center;padding:96px 24px;background:var(--ink-band);color:#fff}
+  .cta-band h2{font-family:var(--serif);font-size:38px;font-weight:700}
+  .cta-band p{color:#bbf3df;margin:16px auto 32px;max-width:580px;font-size:17px}
+  .cta-band .cta-row{display:flex;gap:13px;justify-content:center;flex-wrap:wrap}
+
+  /* footer */
+  footer.site{background:#0c1411;color:#8a958f;font-size:13px;padding:46px 0 96px;text-align:center}
+  footer.site .contact{margin-top:8px;color:#cbd5e1}
+
+  /* sticky mobile action bar */
+  .actionbar{position:fixed;left:0;right:0;bottom:0;z-index:45;display:none;gap:10px;padding:9px 12px;background:rgba(255,253,249,.97);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
+  .actionbar .btn{flex:1}
+
+  .lp-loading{display:flex;align-items:center;justify-content:center;min-height:70vh;color:var(--muted)}
+  .lp-error{display:flex;align-items:center;justify-content:center;min-height:60vh;color:#b91c1c;text-align:center;padding:24px}
+
+  @media(max-width:900px){
+    .hero h1{font-size:36px}
+    .story .grid{grid-template-columns:1fr;gap:32px}
+    .proc .track{grid-template-columns:1fr;gap:34px}
+    .proc .track::before{display:none}
+    .cur{grid-template-columns:1fr}
+    .tg{grid-template-columns:1fr}
+    .sec{padding:60px 0}
+    .actionbar{display:flex}
+  }
+  @media(max-width:560px){ .hero h1{font-size:29px} .sec-title{font-size:27px} .ccard{grid-template-columns:1fr} .ccard .ph img{min-height:150px} .cta-band h2{font-size:28px} }
+</style>
+</head>
+<body>
+
+<!-- 研发配置区 — 改这里即可接入真实数据源与转化按钮跳转 -->
+<script id="lp-config">
+window.LP_CONFIG = {
+  contentUrl:  "/templates/data/content.json?b=2",
+  productsUrl: "/templates/data/products.json?b=2",
+  assetsBase:  "",
+  whatsappFallback: "",
+  actions: { quote: "whatsapp", chat: "whatsapp" },
+  onAction: null
+};
+</script>
+
+<div id="lp-root"><div class="lp-loading">Loading…</div></div>
+
+<!-- LP CORE — 与其它模板一致，逻辑共用 -->
+<script id="lp-core">
+window.LP = (function(){
+  var CFG = window.LP_CONFIG || {};
+  var ACTIONS = Object.assign({quote:"whatsapp", chat:"whatsapp"}, CFG.actions || {});
+  var ASSETS_BASE = CFG.assetsBase || "";
+
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+  function resolveAsset(name){
+    if(!name) return "";
+    var v = String(name);
+    var m = v.match(/^\{\{ASSET:(.+)\}\}$/);
+    if(m) v = m[1];
+    if(/^(https?:|data:|\/\/)/.test(v)) return v;
+    return ASSETS_BASE + v;
+  }
+  function waNumber(content){
+    var n = (content && content.contact && content.contact.wa) || CFG.whatsappFallback || "";
+    return String(n).replace(/[^\d+]/g,"");
+  }
+  function openWhatsApp(content, productName){
+    var num = waNumber(content);
+    var txt = productName
+      ? "Hi, I'm interested in " + productName + ". Could you provide a quote?"
+      : "Hi, I'd like to inquire about your products. Could you provide more details?";
+    var url = num ? "https://wa.me/" + num + "?text=" + encodeURIComponent(txt) : "#";
+    window.open(url, "_blank", "noopener");
+  }
+  function dispatch(content, action, productName){
+    var resolved = action;
+    if(action === "quote") resolved = ACTIONS.quote;
+    if(action === "chat")  resolved = ACTIONS.chat;
+    if(typeof CFG.onAction === "function"){
+      if(CFG.onAction({action:action, resolved:resolved, productName:productName||"", content:content}) === true) return;
+    }
+    if(resolved && resolved.indexOf("url:") === 0){ window.open(resolved.slice(4), "_blank", "noopener"); return; }
+    openWhatsApp(content, productName);
+  }
+  function bind(root, content){
+    root.addEventListener("click", function(e){
+      var btn = e.target.closest && e.target.closest("[data-action]");
+      if(!btn) return;
+      e.preventDefault();
+      dispatch(content, btn.getAttribute("data-action"), btn.getAttribute("data-product") || "");
+    });
+  }
+  async function loadJSON(url){
+    var r = await fetch(url, {cache:"no-store"});
+    if(!r.ok) throw new Error("Failed to load " + url + " (" + r.status + ")");
+    return r.json();
+  }
+  async function load(){
+    var content  = await loadJSON(CFG.contentUrl  || "content.json");
+    var praw     = await loadJSON(CFG.productsUrl || "products.json");
+    var products = Array.isArray(praw) ? praw : (praw && praw.data) || [];
+    return {content:content, products:products};
+  }
+  var icons = {
+    whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.75.75 0 00.913.913l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.37 0-4.567-.804-6.307-2.156a.75.75 0 00-.653-.128l-3.135 1.05 1.05-3.135a.75.75 0 00-.128-.653A9.958 9.958 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>',
+    quote: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>',
+    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
+  };
+  function btn(action, label, cls, product){
+    var ico = action === "whatsapp" ? icons.whatsapp : (action === "chat" ? icons.chat : icons.quote);
+    return '<button class="btn '+cls+'" data-action="'+action+'"'+(product?' data-product="'+esc(product)+'"':'')+'>'+ico+'<span>'+esc(label)+'</span></button>';
+  }
+  return {esc:esc, resolveAsset:resolveAsset, waNumber:waNumber, openWhatsApp:openWhatsApp,
+          dispatch:dispatch, bind:bind, load:load, icons:icons, btn:btn};
+})();
+</script>
+
+<!-- LP BRAND — EaseSourcing 平台介绍常量（文案据 easesourcing.com） -->
+<script id="lp-brand">
+window.LP = window.LP || {};
+LP.EASE = {
+  tagline: "Ease Your Sourcing · Earn Your Time",
+  builtBy: "Built by NetEase · NASDAQ: NTES",
+  headline: "Sourcing you can trust, backed by NetEase",
+  about: "EaseSourcing turns sourcing into a shortlist you can trust. Built on NetEase Waimaotong's verified trade intelligence, our AI finds, contacts and vets suppliers — so global buyers spend less time chasing suppliers and more time making the right choices.",
+  mission: "Help global buyers spend less time chasing suppliers and more time making the right choices.",
+  stats: [
+    { value: "6B+",    label: "Authoritative customs trade records" },
+    { value: "230+",   label: "Countries & regions covered" },
+    { value: "200M+",  label: "Overseas business contacts" },
+    { value: "2,000+", label: "Global buyers served" }
+  ],
+  pillars: [
+    { icon: "🌐", title: "Reach globally, match precisely", desc: "AI handles outreach and early conversations, filtering the noise so you only see relevant, qualified matches." },
+    { icon: "✅", title: "Vetted before you engage", desc: "First-round supplier interviews and background checks — you only talk to partners who are already qualified." },
+    { icon: "🧩", title: "Built for every scenario", desc: "Small orders, DDP or bulk procurement — even when requirements are incomplete or evolving." }
+  ],
+  process: [
+    { k: "F", title: "Find",      desc: "AI-driven outreach at scale confirms pricing, capacity and basic fit early." },
+    { k: "A", title: "Assess",    desc: "Suppliers evaluated through real conversation outcomes plus qualification checks." },
+    { k: "S", title: "Shortlist", desc: "Receive a decision-ready supplier shortlist tailored to your request." },
+    { k: "T", title: "Tender",    desc: "Run a structured sourcing process with selected suppliers, in full transparency." }
+  ]
+};
+</script>
+
+<!-- LAYOUT: Brand Story (editorial). 仅此段（lp-layout）与 <style> 在模板间不同。 -->
+<script id="lp-layout">
+(function(){
+  var E = LP.esc, A = LP.resolveAsset, BTN = LP.btn, EASE = LP.EASE || {};
+
+  function render(content, products){
+    var c = content || {}, p = products || [];
+    var bannerUrl = A(c.banner);
+    var H = [];
+
+    // header
+    H.push('<header class="site"><div class="wrap">'
+      + '<div class="brandmark">Ease<span>Sourcing</span></div>'
+      + BTN("whatsapp","Chat on WhatsApp","btn-wa btn-sm")
+      + '</div></header>');
+
+    // hero editorial
+    H.push('<section class="hero"><div class="wrap">'
+      + '<div class="eyebrow">' + E(EASE.tagline) + '</div>'
+      + '<h1>' + E(c.title) + '</h1>'
+      + (c.subtitle ? '<p class="sub">' + E(c.subtitle) + '</p>' : '')
+      + '<div class="cta-row">'
+        + BTN("quote","Get a Quote","btn-brand")
+      + '</div>'
+      + (bannerUrl ? '<div class="frame"><img src="'+E(bannerUrl)+'" alt="'+E(c.title)+'" /></div>' : '')
+      + '</div></section>');
+
+    // story — built by NetEase
+    var aboutBody = (c.about && c.about.body) || EASE.about || "";
+    H.push('<section class="sec story"><div class="wrap"><div class="grid">'
+      + '<div>'
+        + '<div class="eyebrow">Our Story</div>'
+        + '<h2>' + E((c.about && c.about.title) || EASE.headline) + '</h2>'
+        + (aboutBody ? '<p>' + E(aboutBody) + '</p>' : '')
+        + (EASE.builtBy ? '<div class="built">🛡️ ' + E(EASE.builtBy) + '</div>' : '')
+      + '</div>'
+      + (EASE.stats && EASE.stats.length ? '<div class="pstats">'
+          + EASE.stats.map(function(s){return '<div class="pcell"><div class="v">'+E(s.value)+'</div><div class="l">'+E(s.label)+'</div></div>';}).join("")
+          + '</div>' : '')
+      + '</div></div></section>');
+
+    // FAST process timeline
+    if(EASE.process && EASE.process.length){
+      H.push('<section class="sec proc"><div class="wrap center">'
+        + '<div class="eyebrow">How EaseSourcing Works</div>'
+        + '<h2 class="sec-title">From request to shortlist — fast</h2>'
+        + '<div class="track">'
+        + EASE.process.map(function(s){return '<div class="step"><div class="num">'+E(s.k)+'</div><h3>'+E(s.title)+'</h3><p>'+E(s.desc)+'</p></div>';}).join("")
+        + '</div></div></section>');
+    }
+
+    // curated products
+    if(p.length){
+      H.push('<section class="sec" style="background:var(--bg-soft)"><div class="wrap center">'
+        + '<div class="eyebrow">Curated Selection</div>'
+        + '<h2 class="sec-title">Featured products from this maker</h2>'
+        + '<div class="cur" style="text-align:left">'
+        + p.map(function(pr){
+            var img = A(pr.images && pr.images[0]);
+            return '<div class="ccard">'
+              + '<div class="ph">' + (img ? '<img src="'+E(img)+'" alt="'+E(pr.productName)+'" loading="lazy" />' : '') + '</div>'
+              + '<div class="body">'
+                + (pr.subtitle ? '<div class="model">'+E(pr.subtitle)+'</div>' : '')
+                + '<div class="name">'+E(pr.productName)+'</div>'
+                + (pr.description ? '<div class="desc">'+E(pr.description)+'</div>' : '<div class="desc"></div>')
+                + '<div class="actions">'
+                  + BTN("quote","Get a Quote","btn-brand btn-block btn-sm", pr.productName)
+                + '</div>'
+              + '</div></div>';
+          }).join("")
+        + '</div></div></section>');
+    }
+
+    // certifications ribbon (dark)
+    if(c.certifications && c.certifications.items && c.certifications.items.length){
+      H.push('<div class="ribbon"><div class="wrap">'
+        + '<span class="lead">' + E(c.certifications.sectionTitle || "Compliance & Classification") + '</span>'
+        + c.certifications.items.map(function(x){return '<span class="pill">'+E(x)+'</span>';}).join("")
+        + '</div></div>');
+    }
+
+    // testimonials
+    if(c.testimonials && c.testimonials.items && c.testimonials.items.length){
+      H.push('<section class="sec"><div class="wrap center">'
+        + '<div class="eyebrow">In Their Words</div><h2 class="sec-title">' + E(c.testimonials.sectionTitle || "Partner Feedback") + '</h2>'
+        + '<div class="tg" style="text-align:left">'
+        + c.testimonials.items.map(function(t){return '<div class="tcard"><q>“'+E(t.quote)+'”</q><div class="who">— '+E(t.author)+'</div></div>';}).join("")
+        + '</div></div></section>');
+    }
+
+    // faq
+    if(c.faq && c.faq.items && c.faq.items.length){
+      H.push('<section class="sec" style="background:var(--bg-soft)"><div class="wrap center">'
+        + '<div class="eyebrow">Good to Know</div><h2 class="sec-title">' + E(c.faq.sectionTitle || "Frequently Asked Questions") + '</h2>'
+        + '<div class="faq" style="text-align:left">'
+        + c.faq.items.map(function(f){return '<div class="qa"><button type="button"><span>'+E(f.q)+'</span><span class="chev">+</span></button><div class="ans"><p>'+E(f.a)+'</p></div></div>';}).join("")
+        + '</div></div></section>');
+    }
+
+    // closing CTA
+    var cta = c.cta || {};
+    H.push('<section class="cta-band">'
+      + '<h2>' + E(cta.bottomTitle || "Start your sourcing conversation") + '</h2>'
+      + '<p>' + E(cta.bottomSubtitle || EASE.mission || "Share your specification and our team will respond within one business day.") + '</p>'
+      + '<div class="cta-row">'
+        + BTN("quote","Get a Quote","btn-brand")
+      + '</div></section>');
+
+    // footer
+    var contact = "";
+    if(c.contact && (c.contact.email || c.contact.wa)){
+      contact = '<div class="contact">' + (c.contact.email ? E(c.contact.email) : "")
+        + (c.contact.email && c.contact.wa ? " · " : "")
+        + (c.contact.wa ? "WhatsApp " + E(c.contact.wa) : "") + '</div>';
+    }
+    H.push('<footer class="site"><div class="wrap">'
+      + '<div>© 2026 EaseSourcing · NetEase (NASDAQ: NTES) · OEM &amp; ODM Specialist</div>'
+      + contact + '</div></footer>');
+
+    // sticky mobile action bar
+    H.push('<div class="actionbar">'
+      + BTN("quote","Get a Quote","btn-brand")
+      + '</div>');
+
+    var root = document.getElementById("lp-root");
+    root.innerHTML = H.join("");
+    root.querySelectorAll(".qa > button").forEach(function(b){
+      b.addEventListener("click", function(){ b.parentNode.classList.toggle("open"); });
+    });
+    LP.bind(root, content);
+    document.title = (c.title ? c.title + " · " : "") + "EaseSourcing";
+  }
+
+  LP.load().then(function(d){ render(d.content, d.products); })
+    .catch(function(err){
+      document.getElementById("lp-root").innerHTML =
+        '<div class="lp-error">Failed to load landing data.<br>' + LP.esc(err.message) + '</div>';
+      console.error(err);
+    });
+})();
+</script>
+
+<style id="lpv11-style">
+  /* v1.1 — B2B substance layer (theme-aware; uses each template's CSS vars).
+     Replaces consumer-style reassurance with verifiable B2B evidence:
+     compliance strip · key specifications · sourcing & trade terms. */
+  .lpv11-cap{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(45,212,160,.05)}
+  .lpv11-cap .lpv11-w{max-width:1200px;margin:0 auto;padding:15px 22px;display:flex;flex-wrap:wrap;gap:8px 26px;align-items:center;justify-content:space-between}
+  .lpv11-cap .lpv11-std{font-size:13.5px;color:var(--muted)}
+  .lpv11-cap .lpv11-lbl{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-right:10px}
+  .lpv11-cap .lpv11-note{font-size:12.5px;color:var(--muted)}
+  .lpv11-sec{padding:58px 0;border-top:1px solid var(--line)}
+  .lpv11-sec .lpv11-w{max-width:1040px;margin:0 auto;padding:0 22px}
+  .lpv11-h{font-size:23px;font-weight:800;margin:0 0 4px;color:inherit}
+  .lpv11-sub{font-size:13.5px;color:var(--muted);margin:0 0 22px}
+  .lpv11-table{width:100%;border-collapse:collapse;font-size:14px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .lpv11-table th,.lpv11-table td{border:1px solid var(--line);padding:11px 15px;text-align:left;vertical-align:top}
+  .lpv11-table th{width:36%;font-weight:700;color:inherit;background:rgba(127,127,127,.07)}
+  .lpv11-table td{color:var(--muted)}
+  .lpv11-act{margin-top:18px}
+</style>
+<script id="lpv11">
+/* ============================================================================
+ * v1.1 — B2B best-practice substance layer (additive; revises v1.0 at runtime).
+ * Per POPO doc "v1.1 · B2B 产品落地页最佳实践（B2B 强化版）".
+ * Adds: compliance strip (facts, no emoji), key-specifications table,
+ * sourcing & trade-terms table, conversion tracking. No consumer reassurance.
+ * ========================================================================== */
+(function () {
+  "use strict";
+  if (window.__lpV11) return; window.__lpV11 = true;
+
+  // Configurable B2B sourcing terms (研发 can override per supplier).
+  var TRADE = (window.LP && LP.TRADE) || {
+    title: "Sourcing & Trade Terms",
+    sub: "Everything procurement needs to evaluate a first order.",
+    rows: [
+      ["MOQ", "10 units (stock models) · 50 units (custom OEM)"],
+      ["Lead Time", "7–10 days (stock) · 25–35 days (OEM, after sample approval)"],
+      ["Payment Terms", "T/T 30/70 · L/C at sight · trade-assurance options"],
+      ["Sampling", "Paid samples; cost creditable against bulk order"],
+      ["Quality Control", "In-line QC + 100% pre-shipment test; SGS / BV inspection on request"],
+      ["Trade Terms", "FOB · CIF · DDP (Incoterms 2020)"],
+      ["Customization (OEM/ODM)", "Enclosure, capacity, BMS protocol, labeling & packaging"]
+    ]
+  };
+
+  function E(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+
+  // conversion tracking (additive, capture phase) — B2B still measures lead quality
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-action]");
+    if (!b) return;
+    var action = b.getAttribute("data-action") || "", product = b.getAttribute("data-product") || "";
+    try { (window.dataLayer = window.dataLayer || []).push({ event: "lp_conversion", lp_action: action, lp_product: product, lp_version: "1.1" }); } catch (_) {}
+    try { if (typeof window.gtag === "function") window.gtag("event", "generate_lead", { lp_action: action, lp_product: product }); } catch (_) {}
+  }, true);
+
+  function whenRendered(cb) {
+    var root = document.getElementById("lp-root");
+    if (!root) return;
+    if (root.querySelector(".hero, header.site")) return cb(root);
+    var mo = new MutationObserver(function () {
+      if (root.querySelector(".hero, header.site")) { mo.disconnect(); cb(root); }
+    });
+    mo.observe(root, { childList: true, subtree: true });
+  }
+
+  whenRendered(function (root) {
+    var loader = (window.LP && LP.load) ? LP.load() : Promise.resolve({ content: {}, products: [] });
+    loader.then(function (d) { enhance(root, d.content || {}, d.products || []); })
+          .catch(function () { enhance(root, {}, []); });
+  });
+
+  function tableHTML(rows) {
+    return '<table class="lpv11-table"><tbody>'
+      + rows.map(function (r) { return '<tr><th>' + E(r[0]) + '</th><td>' + E(r[1]) + '</td></tr>'; }).join("")
+      + '</tbody></table>';
+  }
+
+  function enhance(root, c, p) {
+    // (A) compliance / verification strip — facts, no emoji — right after hero
+    if (!root.querySelector(".lpv11-cap")) {
+      var certs = (c.certifications && c.certifications.items) || [];
+      var stdTxt = certs.length ? certs.join(" · ") : "CE · UN38.3 · IEC 62619 · ISO 9001";
+      var cap = document.createElement("div");
+      cap.className = "lpv11-cap";
+      cap.innerHTML = '<div class="lpv11-w">'
+        + '<span class="lpv11-std"><span class="lpv11-lbl">Compliance</span>' + E(stdTxt) + '</span>'
+        + '<span class="lpv11-note">Factory audit &amp; third-party test reports (SGS / BV) available on request</span>'
+        + '</div>';
+      var hero = root.querySelector(".hero");
+      if (hero && hero.parentNode) hero.parentNode.insertBefore(cap, hero.nextSibling);
+      else root.insertBefore(cap, root.firstChild);
+    }
+
+    var footer = root.querySelector("footer.site");
+    function insertBeforeFooter(node){ if (footer && footer.parentNode) footer.parentNode.insertBefore(node, footer); else root.appendChild(node); }
+
+    // (B) key specifications — featured product — supports technical buyers' independent research
+    var featured = p && p[0];
+    if (featured && featured.specs && featured.specs.length && !root.querySelector(".lpv11-specs")) {
+      var sec = document.createElement("section");
+      sec.className = "lpv11-sec lpv11-specs";
+      var rows = featured.specs.map(function (s) { return [s.label, s.value]; });
+      sec.innerHTML = '<div class="lpv11-w">'
+        + '<h2 class="lpv11-h">Key Specifications</h2>'
+        + '<p class="lpv11-sub">' + E(featured.productName) + (featured.subtitle ? " · " + E(featured.subtitle) : "") + ' — full datasheet available on request.</p>'
+        + tableHTML(rows)
+        + '<div class="lpv11-act"><button class="btn btn-brand btn-sm" data-action="quote" data-product="' + E(featured.productName) + '">Request full datasheet</button></div>'
+        + '</div>';
+      insertBeforeFooter(sec);
+    }
+
+    // (C) sourcing & trade terms — procurement facts table (replaces consumer "risk-reversal" cards)
+    if (!root.querySelector(".lpv11-trade")) {
+      var t = document.createElement("section");
+      t.className = "lpv11-sec lpv11-trade";
+      t.innerHTML = '<div class="lpv11-w">'
+        + '<h2 class="lpv11-h">' + E(TRADE.title) + '</h2>'
+        + (TRADE.sub ? '<p class="lpv11-sub">' + E(TRADE.sub) + '</p>' : '')
+        + tableHTML(TRADE.rows)
+        + '<div class="lpv11-act"><button class="btn btn-brand btn-sm" data-action="quote">Request a quotation</button></div>'
+        + '</div>';
+      insertBeforeFooter(t);
+    }
+  }
+})();
+</script>
+</body>
+</html>

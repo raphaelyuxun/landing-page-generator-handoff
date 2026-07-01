@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EaseSourcing — Catalog Grid Template</title>
+<meta name="description" content="China product sourcing — OEM manufacturing & verified suppliers." />
+<link rel="icon" type="image/png" href="/templates/favicon.png" />
+<style>
+  /* ============================================================
+     EaseSourcing Landing Template — m5 "Catalog / High-SKU"
+     Self-contained. Renders from content.json + products.json.
+     Dense catalog grid; ideal for many SKUs. Conversion buttons:
+     Chat on WhatsApp / Get a Quote / Chat Now.
+     ============================================================ */
+  :root{
+    --brand:#2dd4a0; --brand-hover:#22c08e; --brand-active:#1aa97c; --brand-ink:#06281f;
+    --wa:#25D366; --wa-hover:#1ebe5a;
+    --ink:#111827; --muted:#6b7280; --line:#e5e7eb;
+    --bg:#ffffff; --bg-soft:#f4f6f8; --head:#0e1a17;
+    --maxw:1240px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
+  img{display:block;max-width:100%}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+  h1,h2,h3{margin:0;line-height:1.2}
+  .sec{padding:52px 0}
+  .sec-title{font-size:23px;font-weight:800;margin-bottom:6px}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+  .sec-head .muted{color:var(--muted);font-size:14px}
+  .hidden{display:none !important}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;cursor:pointer;font-family:inherit;
+    font-weight:700;font-size:14px;padding:11px 18px;border-radius:10px;min-height:44px;transition:background .15s,transform .05s,border-color .15s}
+  .btn:active{transform:translateY(1px)}
+  .btn svg{width:18px;height:18px;flex:0 0 auto}
+  .btn-brand{background:var(--brand);color:var(--brand-ink)}
+  .btn-brand:hover{background:var(--brand-hover)}
+  .btn-wa{background:var(--wa);color:#fff}
+  .btn-wa:hover{background:var(--wa-hover)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--brand);color:var(--brand-active)}
+  .btn-block{width:100%}
+  .btn-sm{padding:8px 12px;font-size:12.5px;min-height:38px;border-radius:9px}
+  .icon-btn{width:38px;height:38px;min-height:0;padding:0;flex:0 0 auto}
+
+  /* header */
+  header.site{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line)}
+  header.site .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:12px}
+  .brandmark{font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .brandmark span{color:var(--brand-active)}
+  header .acts{display:flex;gap:8px}
+  @media(max-width:520px){ header .acts .label-quote{display:none} }
+
+  /* hero strip (compact) */
+  .hero{position:relative;min-height:360px;display:flex;align-items:center;background:var(--head) no-repeat center/cover;color:#fff;padding:56px 0}
+  .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,18,15,.86),rgba(8,18,15,.45))}
+  .hero .inner{position:relative;z-index:2;max-width:620px}
+  .hero h1{font-size:38px;font-weight:800;letter-spacing:-.01em}
+  .hero p.sub{font-size:17px;color:#d1fae5;margin:14px 0 26px}
+  .hero .cta-row{display:flex;gap:12px;flex-wrap:wrap}
+
+  /* certifications ribbon */
+  .ribbon{background:var(--bg-soft);border-bottom:1px solid var(--line)}
+  .ribbon .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:16px 20px}
+  .ribbon .lead{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+  .ribbon .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;color:#374151}
+
+  /* trust mini-row */
+  .trust-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .trust-item{display:flex;gap:12px;align-items:flex-start}
+  .trust-item .ic{font-size:26px;flex:0 0 auto;line-height:1.1}
+  .trust-item h3{font-size:15px;font-weight:700;margin:0 0 3px}
+  .trust-item p{font-size:13px;color:var(--muted);margin:0}
+
+  /* catalog grid (dense) */
+  .cat{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .pcard{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff;transition:box-shadow .18s,border-color .18s}
+  .pcard:hover{box-shadow:0 12px 28px -18px rgba(15,23,42,.45);border-color:#cbd5e1}
+  .pcard .ph{aspect-ratio:1/1;background:var(--bg-soft);position:relative}
+  .pcard .ph img{width:100%;height:100%;object-fit:cover}
+  .pcard .body{display:flex;flex-direction:column;flex:1;padding:13px}
+  .pcard .name{font-weight:700;font-size:14px;line-height:1.3}
+  .pcard .model{font-size:11.5px;color:#9ca3af;margin-top:2px}
+  .pcard .desc{font-size:12.5px;color:var(--muted);margin:7px 0 12px;flex:1;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .pcard .actions{display:flex;gap:7px}
+
+  /* stats compact */
+  .stats{background:var(--head);color:#fff}
+  .stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:40px 20px;text-align:center}
+  .stats .v{font-size:34px;font-weight:800;color:var(--brand)}
+  .stats .l{font-size:12.5px;color:#9ca3af;margin-top:5px}
+
+  /* about EaseSourcing band */
+  .ease{background:var(--bg-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .ease .wrap{padding:56px 20px}
+  .ease .eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-active)}
+  .ease h2{font-size:26px;font-weight:800;margin:10px 0 0;max-width:700px}
+  .ease .lead{color:var(--muted);font-size:15px;margin:14px 0 0;max-width:740px;line-height:1.65}
+  .ease .built{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-size:12.5px;font-weight:700;color:#334155;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 15px}
+  .ease .pstats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:34px}
+  .ease .pstats .v{font-size:30px;font-weight:800;color:var(--brand-active)}
+  .ease .pstats .l{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35}
+  .ease .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+  .ease .pcardx{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px}
+  .ease .pcardx .ic{font-size:26px}
+  .ease .pcardx h3{font-size:15.5px;font-weight:700;margin:11px 0 6px}
+  .ease .pcardx p{font-size:13px;color:var(--muted);margin:0;line-height:1.55}
+  @media(max-width:860px){ .ease .pstats{grid-template-columns:repeat(2,1fr)} .ease .pillars{grid-template-columns:1fr} }
+
+  /* faq + testimonials two-column */
+  .duo{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:start}
+  .qa{border-bottom:1px solid var(--line)}
+  .qa>button{width:100%;background:none;border:0;cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;
+    align-items:center;gap:14px;padding:16px 0;text-align:left;font-size:15px;font-weight:600;color:var(--ink)}
+  .qa .chev{color:var(--brand-active);font-size:19px;transition:transform .2s;flex:0 0 auto}
+  .qa.open .chev{transform:rotate(45deg)}
+  .qa .ans{max-height:0;overflow:hidden;transition:max-height .25s ease;color:var(--muted);font-size:13.5px}
+  .qa.open .ans{max-height:300px}
+  .qa .ans p{margin:0 0 16px}
+  .tstack{display:flex;flex-direction:column;gap:14px}
+  .tcard{background:var(--bg-soft);border-radius:13px;padding:18px;border-left:3px solid var(--brand)}
+  .tcard q{font-style:italic;color:#475569;font-size:13.5px;display:block}
+  .tcard .who{margin-top:10px;font-weight:700;font-size:12px;color:var(--brand-active)}
+
+  /* bottom CTA */
+  .cta-band{background:var(--brand);color:var(--brand-ink);text-align:center;padding:52px 22px}
+  .cta-band h2{font-size:27px;font-weight:800}
+  .cta-band p{margin:12px auto 24px;max-width:560px;color:#073d2e;opacity:.85}
+  .cta-band .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .cta-band .btn-onbrand{background:var(--head);color:#fff}
+  .cta-band .btn-onbrand:hover{background:#06120e}
+
+  /* footer */
+  footer.site{background:var(--head);color:#9ca3af;font-size:13px;padding:36px 0 100px;text-align:center}
+  footer.site .contact{margin-top:8px;color:#d1d5db}
+
+  /* sticky mobile action bar */
+  .actionbar{position:fixed;left:0;right:0;bottom:0;z-index:45;display:none;gap:10px;padding:9px 12px;background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 20px -12px rgba(0,0,0,.3)}
+  .actionbar .btn{flex:1}
+
+  .lp-loading{display:flex;align-items:center;justify-content:center;min-height:60vh;color:var(--muted)}
+  .lp-error{display:flex;align-items:center;justify-content:center;min-height:50vh;color:#b91c1c;text-align:center;padding:24px}
+
+  @media(max-width:1000px){ .cat{grid-template-columns:repeat(3,1fr)} }
+  @media(max-width:860px){
+    .hero h1{font-size:30px}
+    .trust-row{grid-template-columns:repeat(2,1fr);gap:22px}
+    .stats .wrap{grid-template-columns:repeat(2,1fr);gap:26px}
+    .duo{grid-template-columns:1fr;gap:34px}
+    .sec{padding:42px 0}
+    .actionbar{display:flex}
+  }
+  @media(max-width:560px){ .cat{grid-template-columns:repeat(2,1fr)} .hero h1{font-size:26px} }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     研发配置区 — 修改这里即可接入真实跳转/弹窗，无需改其它代码
+     ============================================================ -->
+<script id="lp-config">
+window.LP_CONFIG = {
+  contentUrl:  "data/content.json",
+  productsUrl: "data/products.json",
+  assetsBase:  "",
+  whatsappFallback: "",
+  actions: { quote: "whatsapp", chat: "whatsapp" },
+  onAction: null
+};
+</script>
+
+<div id="lp-root"><div class="lp-loading">Loading…</div></div>
+
+<!-- ============================================================
+     LP CORE — 三套模板共用，逻辑一致，请勿在单个模板内私改
+     ============================================================ -->
+<script id="lp-core">
+window.LP = (function(){
+  var CFG = window.LP_CONFIG || {};
+  var ACTIONS = Object.assign({quote:"whatsapp", chat:"whatsapp"}, CFG.actions || {});
+  var ASSETS_BASE = CFG.assetsBase || "";
+
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+  function resolveAsset(name){
+    if(!name) return "";
+    var v = String(name);
+    var m = v.match(/^\{\{ASSET:(.+)\}\}$/);
+    if(m) v = m[1];
+    if(/^(https?:|data:|\/\/)/.test(v)) return v;
+    return ASSETS_BASE + v;
+  }
+  function waNumber(content){
+    var n = (content && content.contact && content.contact.wa) || CFG.whatsappFallback || "";
+    return String(n).replace(/[^\d+]/g,"");
+  }
+  function openWhatsApp(content, productName){
+    var num = waNumber(content);
+    var txt = productName
+      ? "Hi, I'm interested in " + productName + ". Could you provide a quote?"
+      : "Hi, I'd like to inquire about your products. Could you provide more details?";
+    var url = num ? "https://wa.me/" + num + "?text=" + encodeURIComponent(txt) : "#";
+    window.open(url, "_blank", "noopener");
+  }
+  function dispatch(content, action, productName){
+    var resolved = action;
+    if(action === "quote") resolved = ACTIONS.quote;
+    if(action === "chat")  resolved = ACTIONS.chat;
+    if(typeof CFG.onAction === "function"){
+      if(CFG.onAction({action:action, resolved:resolved, productName:productName||"", content:content}) === true) return;
+    }
+    if(resolved && resolved.indexOf("url:") === 0){ window.open(resolved.slice(4), "_blank", "noopener"); return; }
+    openWhatsApp(content, productName);
+  }
+  function bind(root, content){
+    root.addEventListener("click", function(e){
+      var btn = e.target.closest && e.target.closest("[data-action]");
+      if(!btn) return;
+      e.preventDefault();
+      dispatch(content, btn.getAttribute("data-action"), btn.getAttribute("data-product") || "");
+    });
+  }
+  async function loadJSON(url){
+    var r = await fetch(url, {cache:"no-store"});
+    if(!r.ok) throw new Error("Failed to load " + url + " (" + r.status + ")");
+    return r.json();
+  }
+  async function load(){
+    var content  = await loadJSON(CFG.contentUrl  || "content.json");
+    var praw     = await loadJSON(CFG.productsUrl || "products.json");
+    var products = Array.isArray(praw) ? praw : (praw && praw.data) || [];
+    return {content:content, products:products};
+  }
+  var icons = {
+    whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.75.75 0 00.913.913l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.37 0-4.567-.804-6.307-2.156a.75.75 0 00-.653-.128l-3.135 1.05 1.05-3.135a.75.75 0 00-.128-.653A9.958 9.958 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>',
+    quote: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>',
+    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
+  };
+  function btn(action, label, cls, product){
+    var ico = action === "whatsapp" ? icons.whatsapp : (action === "chat" ? icons.chat : icons.quote);
+    return '<button class="btn '+cls+'" data-action="'+action+'"'+(product?' data-product="'+esc(product)+'"':'')+'>'+ico+'<span>'+esc(label)+'</span></button>';
+  }
+  return {esc:esc, resolveAsset:resolveAsset, waNumber:waNumber, openWhatsApp:openWhatsApp,
+          dispatch:dispatch, bind:bind, load:load, icons:icons, btn:btn};
+})();
+</script>
+
+<!-- ============================================================
+     LP BRAND — EaseSourcing 平台介绍常量（showroom 系模板共用；文案据 easesourcing.com）
+     ============================================================ -->
+<script id="lp-brand">
+window.LP = window.LP || {};
+LP.EASE = {
+  tagline: "Ease Your Sourcing · Earn Your Time",
+  builtBy: "Built by NetEase · NASDAQ: NTES",
+  headline: "Sourcing you can trust, backed by NetEase",
+  about: "EaseSourcing turns sourcing into a shortlist you can trust. Built on NetEase Waimaotong's verified trade intelligence, our AI finds, contacts and vets suppliers — so global buyers spend less time chasing suppliers and more time making the right choices.",
+  mission: "Help global buyers spend less time chasing suppliers and more time making the right choices.",
+  stats: [
+    { value: "6B+",    label: "Authoritative customs trade records" },
+    { value: "230+",   label: "Countries & regions covered" },
+    { value: "200M+",  label: "Overseas business contacts" },
+    { value: "2,000+", label: "Global buyers served" }
+  ],
+  pillars: [
+    { icon: "🌐", title: "Reach globally, match precisely", desc: "AI handles outreach and early conversations, filtering the noise so you only see relevant, qualified matches." },
+    { icon: "✅", title: "Vetted before you engage", desc: "First-round supplier interviews and background checks — you only talk to partners who are already qualified." },
+    { icon: "🧩", title: "Built for every scenario", desc: "Small orders, DDP or bulk procurement — even when requirements are incomplete or evolving." }
+  ],
+  process: [
+    { k: "F", title: "Find",      desc: "AI-driven outreach at scale confirms pricing, capacity and basic fit early." },
+    { k: "A", title: "Assess",    desc: "Suppliers evaluated through real conversation outcomes plus qualification checks." },
+    { k: "S", title: "Shortlist", desc: "Receive a decision-ready supplier shortlist tailored to your request." },
+    { k: "T", title: "Tender",    desc: "Run a structured sourcing process with selected suppliers, in full transparency." }
+  ]
+};
+</script>
+
+<!-- ============================================================
+     LAYOUT: Catalog Grid (High-SKU). 仅此段（lp-layout）与 <style> 在模板间不同。
+     ============================================================ -->
+<script id="lp-layout">
+(function(){
+  var E = LP.esc, A = LP.resolveAsset, BTN = LP.btn;
+
+  function render(content, products){
+    var c = content || {}, p = products || [];
+    var bannerUrl = A(c.banner);
+    var H = [];
+
+    // header
+    H.push('<header class="site"><div class="wrap">'
+      + '<div class="brandmark">Ease<span>Sourcing</span></div>'
+      + '<div class="acts">'
+        + BTN("whatsapp","WhatsApp","btn-wa btn-sm")
+      + '</div></div></header>');
+
+    // hero strip
+    H.push('<section class="hero"' + (bannerUrl ? ' style="background-image:url(\''+E(bannerUrl)+'\')"' : '') + '>'
+      + '<div class="wrap"><div class="inner">'
+        + '<h1>' + E(c.title) + '</h1>'
+        + (c.subtitle ? '<p class="sub">' + E(c.subtitle) + '</p>' : '')
+        + '<div class="cta-row">'
+          + BTN("quote","Get a Quote","btn-brand")
+        + '</div>'
+      + '</div></div></section>');
+
+    // certifications ribbon
+    if(c.certifications && c.certifications.items && c.certifications.items.length){
+      H.push('<div class="ribbon"><div class="wrap">'
+        + '<span class="lead">' + E(c.certifications.sectionTitle || "Certified") + '</span>'
+        + c.certifications.items.map(function(x){return '<span class="pill">'+E(x)+'</span>';}).join("")
+        + '</div></div>');
+    }
+
+    // trust mini-row
+    if(c.trust && c.trust.items && c.trust.items.length){
+      H.push('<section class="sec" style="padding-bottom:0"><div class="wrap"><div class="trust-row">'
+        + c.trust.items.map(function(t){return '<div class="trust-item"><div class="ic">'+E(t.icon)+'</div><div><h3>'+E(t.title)+'</h3><p>'+E(t.desc)+'</p></div></div>';}).join("")
+        + '</div></div></section>');
+    }
+
+    // catalog grid
+    H.push('<section class="sec"><div class="wrap">'
+      + '<div class="sec-head"><div><h2 class="sec-title">Our Products</h2></div>'
+        + '<span class="muted">' + p.length + ' products · MOQ & OEM available</span></div>'
+      + '<div class="cat">'
+      + p.map(function(pr){
+          var img = A(pr.images && pr.images[0]);
+          return '<div class="pcard">'
+            + '<div class="ph">' + (img ? '<img src="'+E(img)+'" alt="'+E(pr.productName)+'" loading="lazy" />' : '') + '</div>'
+            + '<div class="body">'
+              + '<div class="name">'+E(pr.productName)+'</div>'
+              + (pr.subtitle ? '<div class="model">'+E(pr.subtitle)+'</div>' : '')
+              + (pr.description ? '<div class="desc">'+E(pr.description)+'</div>' : '<div class="desc"></div>')
+              + '<div class="actions">'
+                + BTN("quote","Get a Quote","btn-brand btn-block btn-sm", pr.productName)
+              + '</div>'
+            + '</div></div>';
+        }).join("")
+      + '</div></div></section>');
+
+    // about EaseSourcing band (brand trust — content from easesourcing.com, overridable via content.about)
+    var EASE = LP.EASE || {};
+    var aboutBody = (c.about && c.about.body) || EASE.about || "";
+    H.push('<section class="ease"><div class="wrap">'
+      + '<div class="eyebrow">' + E(EASE.tagline || "About EaseSourcing") + '</div>'
+      + '<h2>' + E((c.about && c.about.title) || EASE.headline || "Sourcing you can trust, backed by NetEase") + '</h2>'
+      + (aboutBody ? '<p class="lead">' + E(aboutBody) + '</p>' : '')
+      + (EASE.builtBy ? '<div class="built">🛡️ ' + E(EASE.builtBy) + '</div>' : '')
+      + (EASE.stats && EASE.stats.length ? '<div class="pstats">'
+          + EASE.stats.map(function(s){return '<div><div class="v">'+E(s.value)+'</div><div class="l">'+E(s.label)+'</div></div>';}).join("")
+          + '</div>' : '')
+      + (EASE.pillars && EASE.pillars.length ? '<div class="pillars">'
+          + EASE.pillars.map(function(t){return '<div class="pcardx"><div class="ic">'+E(t.icon)+'</div><h3>'+E(t.title)+'</h3><p>'+E(t.desc)+'</p></div>';}).join("")
+          + '</div>' : '')
+      + '</div></section>');
+
+    // stats compact
+    if(c.stats && c.stats.items && c.stats.items.length){
+      H.push('<div class="stats"><div class="wrap">'
+        + c.stats.items.map(function(s){return '<div><div class="v">'+E(s.value)+'</div><div class="l">'+E(s.label)+'</div></div>';}).join("")
+        + '</div></div>');
+    }
+
+    // faq + testimonials duo
+    var hasFaq = c.faq && c.faq.items && c.faq.items.length;
+    var hasTest = c.testimonials && c.testimonials.items && c.testimonials.items.length;
+    if(hasFaq || hasTest){
+      var left = "", right = "";
+      if(hasFaq){
+        left = '<div><h2 class="sec-title" style="margin-bottom:16px">'+E(c.faq.sectionTitle || "FAQ")+'</h2>'
+          + c.faq.items.map(function(f){return '<div class="qa"><button type="button"><span>'+E(f.q)+'</span><span class="chev">+</span></button><div class="ans"><p>'+E(f.a)+'</p></div></div>';}).join("")
+          + '</div>';
+      }
+      if(hasTest){
+        right = '<div><h2 class="sec-title" style="margin-bottom:16px">'+E(c.testimonials.sectionTitle || "What Partners Say")+'</h2>'
+          + '<div class="tstack">'
+          + c.testimonials.items.map(function(t){return '<div class="tcard"><q>'+E(t.quote)+'</q><div class="who">— '+E(t.author)+'</div></div>';}).join("")
+          + '</div></div>';
+      }
+      // if only one present, let it span full width
+      var duoStyle = (hasFaq && hasTest) ? '' : ' style="grid-template-columns:1fr"';
+      H.push('<section class="sec" style="background:var(--bg-soft)"><div class="wrap"><div class="duo"'+duoStyle+'>'
+        + left + right + '</div></div></section>');
+    }
+
+    // bottom CTA
+    var cta = c.cta || {};
+    H.push('<section class="cta-band">'
+      + '<h2>' + E(cta.bottomTitle || "Request a Quote Today") + '</h2>'
+      + '<p>' + E(cta.bottomSubtitle || "Send us your specification — we reply within one business day.") + '</p>'
+      + '<div class="cta-row">'
+        + '<button class="btn btn-onbrand" data-action="quote">'+LP.icons.quote+'<span>Get a Quote</span></button>'
+      + '</div></section>');
+
+    // footer
+    var contact = "";
+    if(c.contact && (c.contact.email || c.contact.wa)){
+      contact = '<div class="contact">' + (c.contact.email ? E(c.contact.email) : "")
+        + (c.contact.email && c.contact.wa ? " · " : "")
+        + (c.contact.wa ? "WhatsApp " + E(c.contact.wa) : "") + '</div>';
+    }
+    H.push('<footer class="site"><div class="wrap">'
+      + '<div>© 2026 EaseSourcing · NetEase (NASDAQ: NTES) · OEM &amp; ODM Specialist</div>'
+      + contact + '</div></footer>');
+
+    // sticky mobile action bar
+    H.push('<div class="actionbar">'
+      + BTN("quote","Get a Quote","btn-brand")
+      + '</div>');
+
+    var root = document.getElementById("lp-root");
+    root.innerHTML = H.join("");
+
+    root.querySelectorAll(".qa > button").forEach(function(b){
+      b.addEventListener("click", function(){ b.parentNode.classList.toggle("open"); });
+    });
+
+    LP.bind(root, content);
+    document.title = (c.title ? c.title + " · " : "") + "EaseSourcing";
+  }
+
+  LP.load().then(function(d){ render(d.content, d.products); })
+    .catch(function(err){
+      document.getElementById("lp-root").innerHTML =
+        '<div class="lp-error">Failed to load landing data.<br>' + LP.esc(err.message) + '</div>';
+      console.error(err);
+    });
+})();
+</script>
+
+</body>
+</html>
