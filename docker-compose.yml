@@ -1,0 +1,37 @@
+# 一键起：app（Node 应用）+ xray（翻墙代理 sidecar）。全部配置来自同一个 .env。
+#   docker compose up -d --build
+services:
+  # Xray 代理：把 Nano Banana(Google) 流量翻墙出去；节点参数来自 .env 的 XRAY_*
+  xray:
+    image: teddysun/xray:latest
+    restart: unless-stopped
+    env_file: [.env]
+    entrypoint: ["sh", "/entrypoint.sh"]
+    volumes:
+      - ./xray/entrypoint.sh:/entrypoint.sh:ro
+    # 仅在 compose 内网暴露；不映射到宿主机
+    expose: ["10809"]
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      # 让应用把 Nano Banana 的图片调用走 xray 的 HTTP 代理（只代理它，AIGW 直连）
+      NANO_BANANA_PROXY: "http://xray:10809"
+    ports:
+      - "4100:4100"
+    volumes:
+      - es-data:/app/data          # 任务/素材持久化（迁移数据灌到这个卷）
+      # 如需 UI 改的旋钮持久化，取消下一行注释：
+      # - ./config:/app/config
+    depends_on: [xray]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4100/').then(r=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  es-data: {}

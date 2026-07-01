@@ -21,7 +21,9 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
     "multer": "^1.4.5-lts.1",
-    "sharp": "^0.34.5"
+    "sharp": "^0.34.5",
+    "tsx": "^4.19.2",
+    "undici": "^6.27.0"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
@@ -30,7 +32,6 @@
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.10.5",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }

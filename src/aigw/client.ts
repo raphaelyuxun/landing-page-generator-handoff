@@ -150,11 +150,36 @@ export interface ImageGenResult {
 }
 
 /**
- * Image generation via gemini-3-pro-image. Caller supplies the text prompt and
- * optional input images (data URIs or https URLs) for i2i. Sets the required
- * vertexai.response_modalities. Returns the first image.
+ * 图像生成派发器：按 config.imageProviderOrder 依次尝试 provider，任一成功即返回；
+ * 前一个失败（连不上 / 无余额·配额 / 报错 / 空图）自动回退下一个。默认 nanobanana → aigw。
  */
 export async function generateImage(
+  prompt: string,
+  inputImages: string[] = [],
+  opts: ChatOptions = {},
+): Promise<ImageGenResult> {
+  const order = config.imageProviderOrder.length ? config.imageProviderOrder : ['aigw'];
+  let lastErr: unknown;
+  for (const prov of order) {
+    try {
+      if (prov === 'nanobanana') {
+        if (!config.nanoBanana.apiKey) continue; // 未配置则跳过，不算失败
+        const { generateImageNano } = await import('./nanobanana.js');
+        return await generateImageNano(prompt, inputImages, { model: opts.model });
+      }
+      if (prov === 'aigw') return await generateImageAigw(prompt, inputImages, opts);
+    } catch (e) {
+      lastErr = e;
+      console.warn(`[image] provider ${prov} 失败，尝试下一个：${String(e).slice(0, 160)}`);
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(`所有图像 provider 均失败（${order.join(',')}）`);
+}
+
+/**
+ * AIGW 图像生成（gemini-3-pro-image，OpenAI 兼容格式，经 relay/direct）。作为 Nano Banana 的回退。
+ */
+async function generateImageAigw(
   prompt: string,
   inputImages: string[] = [],
   opts: ChatOptions = {},

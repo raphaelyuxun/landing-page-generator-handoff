@@ -1,0 +1,14 @@
+.git
+node_modules
+web/node_modules
+web/dist
+data
+data-test
+.rollback
+.rollback-staging
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+templates/download/*.zip.bak

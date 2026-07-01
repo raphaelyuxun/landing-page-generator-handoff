@@ -22,6 +22,17 @@ export const config = {
   aigwAppKey: process.env.AIGW_APP_KEY || '',
   textModel: process.env.TEXT_MODEL || 'claude-opus-4-6',
   imageModel: process.env.IMAGE_MODEL || 'gemini-3-pro-image',
+  /** 图像 provider 尝试顺序：默认 Nano Banana 原生优先，失败（连不上/无余额/报错/空图）回退 AIGW。 */
+  imageProviderOrder: (process.env.IMAGE_PROVIDER_ORDER || 'nanobanana,aigw')
+    .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean),
+  /** Nano Banana = Google 原生 Gemini 图像 API（内网被墙 → 经 Xray 代理）。 */
+  nanoBanana: {
+    apiKey: process.env.NANO_BANANA_API_KEY || '',
+    baseUrl: (process.env.NANO_BANANA_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta').replace(/\/$/, ''),
+    model: process.env.NANO_BANANA_MODEL || 'gemini-2.5-flash-image',
+    /** HTTP 代理（Xray 的 HTTP 入站，如 http://xray:10809）。空 = 直连 Google（部署机能直连时）。 */
+    proxy: (process.env.NANO_BANANA_PROXY || '').trim(),
+  },
   /** 喂给视觉模型“理解产品范围”的图片数节流阀（均匀采样）。0/未设 = 喂全部图（默认），
    *  使模型能识别到“图片数”这么多不同产品；仅在图特别多、想省 token/延迟时才设正值。 */
   maxVisionImages: Math.max(0, Number(process.env.MAX_VISION_IMAGES || 0)),
