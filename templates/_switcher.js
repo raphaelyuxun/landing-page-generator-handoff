@@ -18,8 +18,8 @@
     { key: "brand-story",     name: "Brand Story",     tag: "叙事 · 编辑风" }
   ];
 
-  // parse current template + version from the path
-  var path = location.pathname.replace(/\/+$/, "");
+  // parse current template + version from the path (served under /templates/)
+  var path = location.pathname.replace(/\/+$/, "").replace(/^\/templates/, "");
   var version = "1.0", slug;
   var mv = path.match(/^\/v1\.1\/([^\/]+?)(?:\.html)?$/);
   if (mv) { version = "1.1"; slug = mv[1]; }
