@@ -37,8 +37,8 @@ curl -s -o /dev/null -w 'node %{http_code}\n' https://<XRAY_SERVER>/   # 期望�
 ## 2. 取代码
 
 ```bash
-git clone https://github.com/raphaelyuxun/landing-page-generator.git
-cd landing-page-generator
+git clone https://github.com/raphaelyuxun/landing-page-generator-handoff.git
+cd landing-page-generator-handoff
 ```
 
 ---
