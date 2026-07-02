@@ -29,7 +29,7 @@ export const config = {
   nanoBanana: {
     apiKey: process.env.NANO_BANANA_API_KEY || '',
     baseUrl: (process.env.NANO_BANANA_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta').replace(/\/$/, ''),
-    model: process.env.NANO_BANANA_MODEL || 'gemini-2.5-flash-image',
+    model: process.env.NANO_BANANA_MODEL || 'gemini-3-pro-image',
     /** HTTP 代理（Xray 的 HTTP 入站，如 http://xray:10809）。空 = 直连 Google（部署机能直连时）。 */
     proxy: (process.env.NANO_BANANA_PROXY || '').trim(),
   },

@@ -64,7 +64,7 @@ cp .env.example .env
 | `IMAGE_PROVIDER_ORDER` | ✅ | `nanobanana,aigw`（原生优先→回退 AIGW）|
 | `NANO_BANANA_API_KEY` | ✅ | 交付方给（Google Gemini key）|
 | `NANO_BANANA_BASE_URL` | ✅ | `https://generativelanguage.googleapis.com/v1beta` |
-| `NANO_BANANA_MODEL` | ✅ | `gemini-2.5-flash-image` |
+| `NANO_BANANA_MODEL` | ✅ | `gemini-3-pro-image`（质量最好；要快省用 `gemini-2.5-flash-image`）|
 | `XRAY_SERVER/PORT/UUID/SNI/PBK/SID` | ✅ | 交付方给的 VLESS+Reality 节点参数 |
 | `XRAY_TRANSPORT/FP/SPX/FLOW` | ✅ | 一般 `tcp`/`chrome`/`/`/空；按节点填 |
 | `NANO_BANANA_PROXY` | ❌ | **不用填**：容器启动脚本自动设为 `http://127.0.0.1:10809` |
