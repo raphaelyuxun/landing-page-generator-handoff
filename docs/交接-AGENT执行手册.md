@@ -132,8 +132,8 @@ curl -s -X POST http://127.0.0.1:4100/api/ext/landingpages/status \
 数据在 Docker 命名卷 `es-data`（= `<项目目录名>_es-data`）。资源文件随卷迁入；任务 JSON 里图片是**旧域名绝对 URL**，需改写成你们的 `PUBLIC_BASE_URL`。
 
 ```bash
-# 1) 交付方在旧线上主机导出（只导线上 data，不含测试环境）：
-#    cd /opt/easesourcer && tar czf ~/es-data.tgz -C . data      # 或 scripts/export-data.sh
+# 1) 交付方在旧线上主机导出（只导带 campaignId 的真实生产任务，排除手建/测试）：
+#    cd /opt/easesourcer && scripts/export-data.sh --only-campaign   # → es-data.tgz
 # 2) 拿到 es-data.tgz 后，在本项目目录执行（先 compose up 过一次以建卷）：
 scripts/load-data.sh es-data.tgz \
   https://easesourcer.omni-marketeer.com \
