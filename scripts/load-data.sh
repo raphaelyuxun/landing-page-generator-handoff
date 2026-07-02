@@ -1,22 +1,31 @@
 #!/usr/bin/env bash
-# 把线上导出的 data.tgz 灌进 compose 的命名卷 es-data（迁移历史任务/素材）。
-#   用法: scripts/load-data.sh <path/to/es-data.tgz>
-# 线上导出：ssh seo "tar czf ~/es-data.tgz -C /opt/easesourcer data" 然后下载该文件。
+# 把旧线上导出的 data.tgz 灌进 compose 命名卷；可选把任务里存的图片URL从旧域名改写成新域名。
+#   scripts/load-data.sh <es-data.tgz> [OLD_PUBLIC_BASE] [NEW_PUBLIC_BASE]
+# 例:
+#   scripts/load-data.sh es-data.tgz \
+#       https://easesourcer.omni-marketeer.com  https://lp.yourcorp.com
+# 说明:
+#   - 资源文件(banner/产品图)随卷一起迁入；但任务 JSON 里存的是【绝对】旧域名 URL。
+#     传入 OLD/NEW 两个 base 即可把它们批量改写成新域名，迁移后图片直接可见。
+#   - 旧线上导出：cd /opt/easesourcer && tar czf ~/es-data.tgz -C . data
 set -euo pipefail
-TGZ="${1:-}"
-[ -f "$TGZ" ] || { echo "用法: $0 <es-data.tgz>"; exit 2; }
+TGZ="${1:-}"; OLD_BASE="${2:-}"; NEW_BASE="${3:-}"
+[ -f "$TGZ" ] || { echo "用法: $0 <es-data.tgz> [OLD_PUBLIC_BASE] [NEW_PUBLIC_BASE]"; exit 2; }
 
-# compose 项目名决定卷全名（默认取当前目录名）；卷名 = <project>_es-data
 PROJECT="$(basename "$(pwd)")"
-VOL="${PROJECT}_es-data"
-
-# 确保卷存在（compose 起过一次即有；否则先建）
+VOL="${PROJECT}_es-data"           # compose 卷名 = <项目目录名>_es-data
 docker volume inspect "$VOL" >/dev/null 2>&1 || docker volume create "$VOL" >/dev/null
+ABS_DIR="$(cd "$(dirname "$TGZ")" && pwd)"; BN="$(basename "$TGZ")"
 
-echo "→ 解包 $TGZ 到卷 $VOL ..."
-# tgz 内是 data/ 目录；解到卷根后卷内为 data/…，与容器挂载点 /app/data 对应：
-#   这里把 data/ 的内容直接铺到卷根（--strip-components=1）
-docker run --rm -v "$VOL":/vol -v "$(cd "$(dirname "$TGZ")" && pwd)":/backup alpine \
-  sh -c "rm -rf /vol/* 2>/dev/null; tar xzf /backup/$(basename "$TGZ") -C /vol --strip-components=1"
+echo "→ 解包 $BN 到卷 $VOL（tgz 内为 data/，铺到卷根）..."
+docker run --rm -v "$VOL":/vol -v "$ABS_DIR":/backup alpine \
+  sh -c "rm -rf /vol/* 2>/dev/null || true; tar xzf /backup/$BN -C /vol --strip-components=1"
 
-echo "✓ 数据已灌入卷 $VOL。重启 app 生效：docker compose restart app"
+if [ -n "$OLD_BASE" ] && [ -n "$NEW_BASE" ]; then
+  echo "→ 改写图片URL域名: $OLD_BASE → $NEW_BASE"
+  docker run --rm -e OLD="$OLD_BASE" -e NEW="$NEW_BASE" -v "$VOL":/vol alpine \
+    sh -c 'find /vol/projects -name "*.json" -type f -exec sed -i "s#${OLD}#${NEW}#g" {} +'
+  echo "  ✓ 已改写(含 content.banner / products[].images / assetsVersion 等绝对URL)"
+fi
+
+echo "✓ 完成。重启生效：docker compose restart app"
