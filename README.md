@@ -7,7 +7,25 @@
 - 存储：纯文件系统（`data/`），**无数据库**
 - 文案/图片：调用 **NetEase AIGW**（文案 `claude-opus-4-6`，图片 `gemini-3-pro-image`）
 
-> 面向使用者的图文操作手册见 `docs/用户使用手册.md`；外部系统对接见 `docs/external-api-spec.md`。
+---
+
+## 📖 文档索引（交接从这里开始）
+
+> **接手 / 部署本项目，先看这两份（都在 [`docs/`](docs/)）：**
+>
+> - 🧭 **[docs/交接-研发速览.md](docs/交接-研发速览.md)** —— 研发速览（人读版）：5 分钟看懂 + 快速跑起来。
+> - 🤖 **[docs/交接-AGENT执行手册.md](docs/交接-AGENT执行手册.md)** —— AGENT 执行手册：命令级、含逐条验证与排障，AI Agent 可直接照做；**Docker 部署以此为准**。
+
+其余参考文档：
+
+| 文档 | 内容 |
+|---|---|
+| [docs/技术交接说明.md](docs/技术交接说明.md) | 架构 / 代码结构 / 生成流水线 / 配置 / 已知限制 |
+| [docs/external-api-spec.md](docs/external-api-spec.md) | 外部对接 `/api/ext` 三接口 + 交付幂等约定（重要） |
+| [docs/部署与回滚.md](docs/部署与回滚.md) | 上线 / 回滚脚本机制（`scripts/deploy.sh`、`rollback.sh`） |
+| [docs/用户使用手册.md](docs/用户使用手册.md) | 运营如何使用工作台 |
+
+> 密钥（AIGW / Nano Banana / Xray 节点等）不在仓库里，由交付方通过安全渠道单独提供，照 `.env.example` 填入 `.env`。
 
 ---
 
@@ -128,9 +146,11 @@ src/            后端
   types.ts        类型定义
 web/            前端（React + Vite）
 config/         品类锚点 / 旋钮配置
-relay/          Mac Mini 上的 Python relay 源码（relay.config.json 含密钥，不入库）
-docs/           用户手册、对接接口文档
-scripts/        一次性回溯/维护脚本
+templates/      落地页模板预览站（由后端在 /templates 托管，登录门内）
+relay/          Mac Mini 上的 Python relay 源码（relay 模式参考；relay.config.json 含密钥，不入库）
+docs/           交接文档（速览 / AGENT手册）、技术交接说明、对接接口、部署回滚、用户手册
+scripts/        deploy / rollback / load-data / export-data + 各阶段测试脚本
+Dockerfile · docker-compose.yml · docker-entrypoint.sh   容器化（单容器：app + 内置 Xray；见 AGENT 手册）
 ```
 
 ## 安全
