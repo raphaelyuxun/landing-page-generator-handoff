@@ -49,6 +49,8 @@ export const config = {
   extApiKeys: (process.env.EXT_API_KEYS || '').split(',').map((s) => s.trim()).filter(Boolean),
   /** optional IP allowlist for /api/ext/* — empty = disabled */
   extIpAllowlist: (process.env.EXT_IP_ALLOWLIST || '').split(',').map((s) => s.trim()).filter(Boolean),
+  /** 允许跨域调 /api/* 的前端来源（CF Pages 域），逗号分隔；空 = 仅同源。前端迁 CF Pages 时在 .env 配 FRONTEND_ORIGINS */
+  frontendOrigins: (process.env.FRONTEND_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean),
 };
 
 /** Externally-reachable absolute URL for a generated asset (no auth required). */

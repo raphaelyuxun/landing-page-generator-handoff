@@ -4,6 +4,7 @@ import multer from 'multer';
 import AdmZip from 'adm-zip';
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { config, ensureDirs, loadAnchors, loadKnobs, publicAssetUrl, saveKnobs } from './config.js';
 import { ROOT } from './config.js';
 import { relayHealth } from './aigw/client.js';
@@ -88,15 +89,44 @@ function startJob(code: string, kind: JobStatus['kind'], work: JobWork): Generat
 ensureDirs();
 const app = express();
 app.set('trust proxy', true);
+
+// CORS：允许配置的前端来源（CF Pages 域）跨域调 /api/*。
+// 方案B：鉴权走 token（Authorization: Bearer），不依赖跨站 cookie。
+app.use((req, res, next) => {
+  const origin = req.headers.origin || '';
+  if (origin && config.frontendOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Max-Age', '86400');
+  }
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 app.use(express.json({ limit: '64mb' }));
 app.use(cookieParser(config.sessionSecret));
 
 // ---------------------------------------------------------------------------
-// Auth (fixed password, signed cookie — no user system, PRD §1.3)
+// Auth (fixed password — no user system, PRD §1.3)
+// 双通道：① 同源用签名 cookie（本地/同容器部署）② 跨域用 Bearer token（前端迁 CF Pages）。
+// token = 对固定串的 HMAC（单密码场景：知道密码即可从 /api/login 换到它）。
 // ---------------------------------------------------------------------------
 const AUTH_COOKIE = 'es_auth';
+const AUTH_TOKEN = crypto.createHmac('sha256', config.sessionSecret).update('es-auth-v1').digest('hex');
+function tokenOk(tok: string): boolean {
+  return tok.length === AUTH_TOKEN.length && crypto.timingSafeEqual(Buffer.from(tok), Buffer.from(AUTH_TOKEN));
+}
+function authed(req: express.Request): boolean {
+  if (req.signedCookies?.[AUTH_COOKIE] === 'ok') return true;               // 同源 cookie
+  const h = req.headers.authorization || '';
+  if (h.startsWith('Bearer ') && tokenOk(h.slice(7).trim())) return true;   // 跨域 Bearer
+  const q = typeof req.query?.token === 'string' ? req.query.token : '';    // 下载链接 ?token（<a href> 带不了头）
+  return q !== '' && tokenOk(q);
+}
 function requireAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
-  if (req.signedCookies?.[AUTH_COOKIE] === 'ok') return next();
+  if (authed(req)) return next();
   return res.status(401).json({ error: 'unauthorized' });
 }
 
@@ -109,7 +139,7 @@ app.post('/api/login', (req, res) => {
       sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
-    return res.json({ ok: true });
+    return res.json({ ok: true, token: AUTH_TOKEN });   // 跨域前端存 token 走 Bearer
   }
   return res.status(401).json({ error: 'invalid password' });
 });
@@ -118,7 +148,7 @@ app.post('/api/logout', (req, res) => {
   res.json({ ok: true });
 });
 app.get('/api/me', (req, res) => {
-  res.json({ authed: req.signedCookies?.[AUTH_COOKIE] === 'ok' });
+  res.json({ authed: authed(req) });
 });
 
 // ---------------------------------------------------------------------------
