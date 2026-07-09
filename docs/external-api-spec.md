@@ -25,6 +25,8 @@
 | 线上 | `https://easesourcer.omni-marketeer.com` | `esk_live_xxxxxxxx（向我方索取）` |
 
 > 密钥请妥善保管、勿外泄、勿提交到公开仓库;如需轮换请联系我方。建议先在测试环境联调通过,再切线上。
+>
+> ⚠️ **运维备注(勿删)**:线上 `easesourcer.omni-marketeer.com` 的网页前端已迁 CF Pages(纯静态),后端在 `easesourcer-api.omni-marketeer.com`。主域的 `/api/*`(含本对接接口)由 CF Pages Function(`web/functions/api/[[path]].js`)反代到后端——**所以对接方仍用主域 base URL,无需改动**。重发前端(`wrangler pages deploy` easesourcer-web)时务必带上 `web/functions/`,否则 `/api` 会被静态站接管、POST 报 405。
 
 **通用约定**
 
